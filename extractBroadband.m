@@ -76,11 +76,12 @@ switch method
         calc = 'geomean(abs(hilbert(whiten(bp))).^2)';
         
     case {5}
-        % -- Method 4: geomean(abs(hilbert(bp(x))).^2)
+        % -- Method 5: geomean(abs(hilbert(bp(x))).^2)
         broadband = geomean(abs(hilbert(bp)).^2, banddim);
         calc = 'geomean(abs(hilbert(bp)).^2)';
         
-    case 6
+    case {6}
+        % -- Method 6: mean(abs(hilbert(whiten(bp(x)))).^2)
         broadband = mean(abs(hilbert(whiten(bp))).^2, banddim);
         calc = 'mean(abs(hilbert(whiten(bp))).^2)';
 end
