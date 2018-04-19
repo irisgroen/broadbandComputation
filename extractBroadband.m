@@ -63,7 +63,7 @@ switch method
     case {2}
         % -- Method 2: 'abs(hilbert(mean(whiten(bp(x))))).^2';
         broadband = abs(hilbert(mean(whiten(bp), banddim))).^2;
-        calc = 'abs(hilbert(mean(whiten(bp))))';
+        calc = 'abs(hilbert(mean(whiten(bp)))).^2';
         
     case {3}
         % -- Method 3: geomean(abs(hilbert(whiten(bp(x))))
