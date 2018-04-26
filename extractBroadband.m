@@ -1,13 +1,14 @@
-function [broadband, calc] = extractBroadband(x, srate, method, bands)
+function [broadband, params] = extractBroadband(signal, params)
+
 % Compute time varying broadband envelope of a time series
 % broadband = extractBroadband(x, srate, method, bands)
 %
 % Inputs
-%   x:      data (time x n) (n is number of channels or epochs)
+%   signal:      data (time x n) (n is number of channels or epochs)
 %
-%   srate:  sample rate (Hz) [default = 1000]
+%   params.srate:  sample rate (Hz) [default = 1000]
 %
-%   method: method for computing broadband, can be a number 1-4, or a
+%   params.method: method for computing broadband, can be a number 1-6, or a
 %            string. [default = 1]
 %               string
 %
@@ -16,16 +17,19 @@ function [broadband, calc] = extractBroadband(x, srate, method, bands)
 %                 3 'geomean(abs(hilbert(whiten(bp(x)))))';
 %                 4 'geomean(abs(hilbert(whiten(bp(x))).^2)';
 %                 5 'geomean(abs(hilbert(bp)).^2'
-%
-%   bands:  required for methods 2-4. Can be a matrix (number of bands x 2)
+%                 6 'mean(abs(hilbert(whiten(bp(x)))).^2)'
+%   params.bands:  required for methods 2-6. Can be a matrix (number of bands x 2)
 %                     or a cell array {[lb, ub], width}
 %                       [default = {[60 200], 20]}
 
 
-if ~exist('srate', 'var')  || isempty(srate),  srate = 1000; end
-if ~exist('method', 'var') || isempty(method), method = 1;   end
-if ~exist('bands', 'var')  || isempty(bands),  bands = {[60 200], 20}; end
+if ~isfield(params,'srate')  || isempty(params.srate),  srate = 1000; end
+if ~isfield(params,'method') || isempty(params.method), method = 1;   end
+if ~isfield(params,'bands')  || isempty(params.bands),  bands = {[60 200], 20}; end
 
+srate  = params.srate;
+method = params.method;
+bands  = params.bands;
 
 if isa(bands, 'cell')
     % Entire range for broadband
@@ -42,9 +46,9 @@ end
     
 
 % band pass filter each sub-band
-bp  = zeros([size(x) size(bands,1)]);
+bp  = zeros([size(signal) size(bands,1)]);
 for ii = 1:size(bands,1)
-    bp(:,:, ii) = butterpass_eeglabdata(x,bands(ii,:),srate);
+    bp(:,:, ii) = butterpass_eeglabdata(signal,bands(ii,:),srate);
 end
 
 % if only one time series, then eliminate singleton dimension
@@ -85,5 +89,12 @@ switch method
         broadband = mean(abs(hilbert(whiten(bp))).^2, banddim);
         calc = 'mean(abs(hilbert(whiten(bp))).^2)';
 end
+
+% epoch the broadband time series
+nt = length(params.t);
+n  = params.n;
+broadband = reshape(broadband, nt, n);
+
+params.methodstr = calc;
 
 return
