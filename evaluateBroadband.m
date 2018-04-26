@@ -25,6 +25,9 @@ out.snr = [];
 % Deviation from input
 out.deviation = [];
 
+% Linear/non-linear fits?
+out.fit = [];
+
 % Plot?
 switch params.plot.on
     case 'yes'
