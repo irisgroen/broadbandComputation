@@ -24,7 +24,7 @@
 params = [];
 
 % Set parameters for the noiseless, time-varying rate 
-params.simulation.resp        = 'pred dn';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
+params.simulation.resp        = 'steps';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
 params.simulation.t           = (-1999.5:1999.5)';       % trial length: trials are -2 to 2 seconds, and later clipped to [0 1] to avoid edge artifacts
 params.simulation.srate       = 1000;                    % sample rate (Hz) (Q shouldn't this go with the noisy sampling part? or would that be redundant)
 
@@ -67,20 +67,31 @@ params.analysis.bands            = {[70 170], 10};     % {[lower bound,  upper b
 params.analysis.averagebandshow  = 'mean';             % geomean/mean
 params.analysis.averagebandswhen = 'after broadband';  % 'before broadband'/'after broadband'
 params.analysis.whitenbands      = 'no';               % yes/no
-params.analysis.measure          = 'logpower';         % amplitude/power/logpower
+params.analysis.measure          = 'logpower';            % amplitude/power/logpower
 %params.analysis.method      = 1;
 [estimatedBroadband, params] = extractBroadband(simulatedSignal, params);
 
 % [2] COMPARE WITH INPUT
 
-[out] = evaluateBroadband(spikeRate, estimatedBroadband, params);
+[out] = evaluateBroadband(spikeRate, estimatedBroadband, params); % TO DO: develop more quantification metrics (now still empty)
+
 disp(out.regress.rsq);
 disp(out.regress.sse);
 ti = get(gca, 'Title');
 title([ti.String ' rsq = ' num2str(out.regress.rsq) ', sse = ' num2str(round(out.regress.sse))]);
-% TO DO: develop more quantification metrics (now still empty)
 
-%% TO DO: COMPARISONS OF SIMULATIONS / ANALYSES %%
+% Impression from just playing around with parameters: 
+% * Averaging bands after broadband computation = less noisy time course
+% * Mean power across bands higher R2/lower sse compared to amplitude and log power 
+% * Geomean and whitening don't improve results; not exact same effect
+
+% * Logpower overestimates tail of pred dn
+
+% Q: Dora's example code with log10 power subtracts mean across all bands,
+% implement that as another normalization option (e.g. compare
+% whiten/geomean/subtract mean/none)?
+
+%% SYSTEMATIC COMPARISONS OF SIMULATIONS / ANALYSES %%
 
 % Question: 
 % How does the quality of broadband estimate vary using amplitude, power or log power estimates?
