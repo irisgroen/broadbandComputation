@@ -1,14 +1,14 @@
 function [spikeRate, params] = generateNoiselessTimeCourse(params)
 
 % Set defaults
-if ~isfield(params, 'resp') || isempty(params.resp)
-    params.resp = 'step';
+if ~isfield(params.simulation, 'resp') || isempty(params.simulation.resp)
+    params.simulation.resp = 'step';
 end
 
-t = params.t/params.srate; 
+t = params.simulation.t/params.simulation.srate; 
 spikeRate = zeros(size(t));
 
-switch params.resp
+switch params.simulation.resp
     case 'boxcar'
         spikeRate(t>.2 & t < .7) = 1;
         xl = [0 1];

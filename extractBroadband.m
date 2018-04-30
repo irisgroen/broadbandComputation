@@ -20,16 +20,10 @@ function [broadband, params] = extractBroadband(signal, params)
 %                 6 'mean(abs(hilbert(whiten(bp(x)))).^2)'
 %   params.bands:  required for methods 2-6. Can be a matrix (number of bands x 2)
 %                     or a cell array {[lb, ub], width}
-%                       [default = {[60 200], 20]}
 
-
-if ~isfield(params,'srate')  || isempty(params.srate),  srate = 1000; end
-if ~isfield(params,'method') || isempty(params.method), method = 1;   end
-if ~isfield(params,'bands')  || isempty(params.bands),  bands = {[60 200], 20}; end
-
-srate  = params.srate;
-method = params.method;
-bands  = params.bands;
+srate  = params.simulation.srate;
+bands  = params.analysis.bands;
+%method = params.analysis.method;
 
 if isa(bands, 'cell')
     % Entire range for broadband
@@ -57,44 +51,90 @@ if size(bp, 2) == 1, bp = squeeze(bp); end
 % which dimension represents the multiple bands?
 banddim = length(size(bp));
 
+%%%% functions %%%%
+
+% define whitening function
 whiten = @(x) (x - mean(x(:)))./ diff(prctile(x, [.25 .75]));
 
-switch method
-    case {1}
-        % -- Method 1: 'abs(hilbert(mean(whiten(bp(x)))))';
-        broadband = abs(hilbert(mean(whiten(bp),banddim)));
-        calc = 'abs(hilbert(mean(whiten(bp))))';
-    case {2}
-        % -- Method 2: 'abs(hilbert(mean(whiten(bp(x))))).^2';
-        broadband = abs(hilbert(mean(whiten(bp), banddim))).^2;
-        calc = 'abs(hilbert(mean(whiten(bp)))).^2';
-        
-    case {3}
-        % -- Method 3: geomean(abs(hilbert(whiten(bp(x))))
-        broadband = geomean(abs(hilbert(whiten(bp))),  banddim);
-        calc = 'geomean(abs(hilbert(whiten(bp)))';
-        
-    case {4}
-        % -- Method 4: geomean(abs(hilbert(whiten(bp(x)))).^2)
-        broadband = geomean(abs(hilbert(whiten(bp))).^2, banddim);
-        calc = 'geomean(abs(hilbert(whiten(bp))).^2)';
-        
-    case {5}
-        % -- Method 5: geomean(abs(hilbert(bp(x))).^2)
-        broadband = geomean(abs(hilbert(bp)).^2, banddim);
-        calc = 'geomean(abs(hilbert(bp)).^2)';
-        
-    case {6}
-        % -- Method 6: mean(abs(hilbert(whiten(bp(x)))).^2)
-        broadband = mean(abs(hilbert(whiten(bp))).^2, banddim);
-        calc = 'mean(abs(hilbert(whiten(bp))).^2)';
+% define averaging function
+switch params.analysis.averagebandshow
+    case 'geomean'
+        mn = @(x,dim) geomean(x,dim);
+        mnstr = 'geomean';
+    case 'mean'
+        mn = @(x,dim) mean(x,dim);
+        mnstr = 'mean';
+end
+
+% define broadband computation
+switch params.analysis.measure
+    case 'amplitude'
+        bb = @(x) abs(hilbert(x));
+        bbstr = 'ampl';
+    case 'power'
+        bb = @(x) abs(hilbert(x)).^2;
+        bbstr = 'power';
+    case 'logpower'
+        bb = @(x) log10(abs(hilbert(x)).^2);
+        bbstr = 'logpower';
+end
+
+%%%% computations %%%%
+
+% apply whitening?
+switch params.analysis.whitenbands
+    case 'yes'
+        bp = whiten(bp);
+        whitenstr = 'whiten';
+    case 'no'
+        whitenstr = [];
+end
+
+switch params.analysis.averagebandswhen
+    case 'before broadband'
+        broadband = bb(mn(bp,banddim));
+        methodstr = [bbstr ' ' mnstr ' ' whitenstr ' '];
+    case 'after broadband'   
+        broadband = mn(bb(bp),banddim);
+        methodstr = [mnstr ' ' bbstr ' ' whitenstr ' '];
 end
 
 % epoch the broadband time series
-nt = length(params.t);
-n  = params.n;
+nt = length(params.simulation.t);
+n  = params.simulation.n;
 broadband = reshape(broadband, nt, n);
 
-params.methodstr = calc;
+params.analysis.methodstr = methodstr;
 
 return
+
+% switch method
+%     case {1}
+%         % -- Method 1: 'abs(hilbert(mean(whiten(bp(x)))))';
+%         broadband = abs(hilbert(mean(whiten(bp),banddim)));
+%         calc = 'abs(hilbert(mean(whiten(bp))))';
+%     case {2}
+%         % -- Method 2: 'abs(hilbert(mean(whiten(bp(x))))).^2';
+%         broadband = abs(hilbert(mean(whiten(bp), banddim))).^2;
+%         calc = 'abs(hilbert(mean(whiten(bp)))).^2';
+%         
+%     case {3}
+%         % -- Method 3: geomean(abs(hilbert(whiten(bp(x))))
+%         broadband = geomean(abs(hilbert(whiten(bp))),  banddim);
+%         calc = 'geomean(abs(hilbert(whiten(bp)))';
+%         
+%     case {4}
+%         % -- Method 4: geomean(abs(hilbert(whiten(bp(x)))).^2)
+%         broadband = geomean(abs(hilbert(whiten(bp))).^2, banddim);
+%         calc = 'geomean(abs(hilbert(whiten(bp))).^2)';
+%         
+%     case {5}
+%         % -- Method 5: geomean(abs(hilbert(bp(x))).^2)
+%         broadband = geomean(abs(hilbert(bp)).^2, banddim);
+%         calc = 'geomean(abs(hilbert(bp)).^2)';
+%         
+%     case {6}
+%         % -- Method 6: mean(abs(hilbert(whiten(bp(x)))).^2)
+%         broadband = mean(abs(hilbert(whiten(bp))).^2, banddim);
+%         calc = 'mean(abs(hilbert(whiten(bp))).^2)';
+% end

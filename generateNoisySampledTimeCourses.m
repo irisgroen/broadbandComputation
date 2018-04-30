@@ -2,15 +2,15 @@
 function [spikeArrivals, params] = generateNoisySampledTimeCourses(spikeRate, params)
 
 % Generate multiple time series using poisson sampling at the time-varying rate determined above
-t = params.t/params.srate; 
+t = params.simulation.t/params.simulation.srate; 
 
-if ~isfield(params, 'seed') || isempty(params.seed)
+if ~isfield(params.simulation, 'seed') || isempty(params.simulation.seed)
     rng('shuffle')
 else
-    rng(params.seed,'twister'); 
+    rng(params.simulation.seed,'twister'); 
 end
 
-spikeArrivals = poissrnd(repmat(spikeRate, [1 params.n]));
+spikeArrivals = poissrnd(repmat(spikeRate, [1 params.simulation.n]));
 
 switch params.plot.on
     case 'yes'

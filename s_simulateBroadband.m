@@ -23,21 +23,21 @@
 % Choose the reponse profile and integration method; add noise (optional)
 params = [];
 
-% Set parameters for the noiseless, time-varying rate. 
-params.resp        = 'pred dn';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
-params.t           = (-1999.5:1999.5)';       % trial length: trials are -2 to 2 seconds, and later clipped to [0 1] to avoid edge artifacts
-params.srate       = 1000;                    % sample rate (Hz) (Q shouldn't this go with the noisy sampling part? or would that be redundant)
+% Set parameters for the noiseless, time-varying rate 
+params.simulation.resp        = 'pred dn';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
+params.simulation.t           = (-1999.5:1999.5)';       % trial length: trials are -2 to 2 seconds, and later clipped to [0 1] to avoid edge artifacts
+params.simulation.srate       = 1000;                    % sample rate (Hz) (Q shouldn't this go with the noisy sampling part? or would that be redundant)
 
 % Set parameters for noisy samples
-params.n           = 100;                     % number of repeated trials
-params.seed        = 2;                       % use same number to compare simulations for same random generator of samples; leave empty to use new generator every time
+params.simulation.n           = 100;                     % number of repeated trials
+params.simulation.seed        = 2;                       % use same number to compare simulations for same random generator of samples; leave empty to use new generator every time
 
 % Set parameters for leaky integration
-params.alpha       = 0.1;       % time constant for dendritic leakage
-params.tau         = 0.0023;    % time constant for post-synaptic current
+params.simulation.alpha       = 0.1;       % time constant for dendritic leakage
+params.simulation.tau         = 0.0023;    % time constant for post-synaptic current
 
 % Set parameters for noise
-params.amplnoise   = 0.01;      % amplifier noise: scale factor of signal variance (if 0, no noise is added)
+params.simulation.amplnoise   = 0.01;      % amplifier noise: scale factor of signal variance (if 0, no noise is added)
 
 % Set parameters for plotting
 params.plot.on     = 'yes';
@@ -63,13 +63,21 @@ params.plot.lnwdth = 3;  % line width
 % [1] COMPUTE BROADBAND
 
 % Define frequency bands and method for extracting broadband
-params.bands       = {[70 170], 10}; % {[lower bound,  upper bound], window sz}
-params.method      = 1;
-
+params.analysis.bands            = {[70 170], 10};     % {[lower bound,  upper bound], window sz}
+params.analysis.averagebandshow  = 'mean';             % geomean/mean
+params.analysis.averagebandswhen = 'after broadband';  % 'before broadband'/'after broadband'
+params.analysis.whitenbands      = 'no';               % yes/no
+params.analysis.measure          = 'logpower';         % amplitude/power/logpower
+%params.analysis.method      = 1;
 [estimatedBroadband, params] = extractBroadband(simulatedSignal, params);
 
 % [2] COMPARE WITH INPUT
+
 [out] = evaluateBroadband(spikeRate, estimatedBroadband, params);
+disp(out.regress.rsq);
+disp(out.regress.sse);
+ti = get(gca, 'Title');
+title([ti.String ' rsq = ' num2str(out.regress.rsq) ', sse = ' num2str(round(out.regress.sse))]);
 % TO DO: develop more quantification metrics (now still empty)
 
 %% TO DO: COMPARISONS OF SIMULATIONS / ANALYSES %%
