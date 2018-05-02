@@ -15,7 +15,7 @@ meanBroadband = mean(broadband,2);
 out = [];
 
 % Regression
-stats = regstats(spikeRate,meanBroadband);
+stats = regstats(spikeRate(idx),meanBroadband(idx));
 out.regress.rsq       = stats.rsquare;
 out.regress.residuals = stats.r;
 out.regress.sse       = stats.fstat.sse;
