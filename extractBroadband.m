@@ -77,6 +77,9 @@ switch params.analysis.measure
     case 'logpower'
         bb = @(x) log10(abs(hilbert(x)).^2);
         bbstr = 'logpower';
+    case 'logpower normalized'
+        bb = @(x) log10(abs(hilbert(x)).^2) - mean(log10(abs(hilbert(x)).^2));
+        bbstr = 'logpower normalized';
 end
 
 %%%% computations %%%%

@@ -24,23 +24,23 @@
 params = [];
 
 % Set parameters for the noiseless, time-varying rate 
-params.simulation.resp        = 'pred dn';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
+params.simulation.resp        = 'steps';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
 params.simulation.t           = (-1999.5:1999.5)';       % trial length: trials are -2 to 2 seconds, and later clipped to [0 1] to avoid edge artifacts
 params.simulation.srate       = 1000;                    % sample rate (Hz) (Q shouldn't this go with the noisy sampling part? or would that be redundant)
 
 % Set parameters for noisy samples
 params.simulation.n           = 100;                     % number of repeated trials
-params.simulation.seed        = [];                       % use same number to compare simulations for same random generator of samples; leave empty to use new generator every time
+params.simulation.seed        = 1;                       % use same number to compare simulations for same random generator of samples; leave empty to use new generator every time
 
 % Set parameters for leaky integration
 params.simulation.alpha       = 0.1;       % time constant for dendritic leakage
 params.simulation.tau         = 0.0023;    % time constant for post-synaptic current
 
 % Set parameters for noise
-params.simulation.amplnoise   = 0.02;      % amplifier noise: scale factor of signal variance (if 0, no noise is added)
+params.simulation.amplnoise   = 0.01;      % amplifier noise: scale factor of signal variance (if 0, no noise is added)
 
 % Set parameters for plotting
-params.plot.on     = 'no';
+params.plot.on     = 'yes';
 params.plot.fontsz = 18; % font size
 params.plot.lnwdth = 3;  % line width    
 
@@ -63,17 +63,18 @@ params.plot.lnwdth = 3;  % line width
 % [1] COMPUTE BROADBAND
 
 % Define frequency bands and method for extracting broadband
-params.analysis.bands            = {[70 170], 10};     % {[lower bound,  upper bound], window sz}
-params.analysis.averagebandshow  = 'mean';             % geomean/mean
-params.analysis.averagebandswhen = 'after broadband';  % 'before broadband'/'after broadband'
-params.analysis.whitenbands      = 'no';               % yes/no
-params.analysis.measure          = 'logpower';            % amplitude/power/logpower
-%params.analysis.method      = 1;
+params.analysis.bands            = {[50 200], 10};          % {[lower bound,  upper bound], window sz}
+params.analysis.averagebandshow  = 'mean';                  % geomean/mean
+params.analysis.averagebandswhen = 'after broadband';       % 'before broadband'/'after broadband'
+params.analysis.whitenbands      = 'yes';                   % yes/no
+params.analysis.measure          = 'logpower normalized';   % amplitude/power/logpower/logpower normalized (dora)
+
 [estimatedBroadband, params] = extractBroadband(simulatedSignal, params);
 
 % [2] COMPARE WITH INPUT
 
-[out] = evaluateBroadband(spikeRate, estimatedBroadband, params); % TO DO: develop more quantification metrics (now still empty)
+% TO DO: develop more quantification metrics (now still empty)
+[out] = evaluateBroadband(spikeRate, estimatedBroadband, params); 
 
 disp(out.regress.rsq);
 disp(out.regress.sse);
@@ -81,15 +82,13 @@ ti = get(gca, 'Title');
 title([ti.String ' rsq = ' num2str(out.regress.rsq) ', sse = ' num2str(round(out.regress.sse))]);
 
 % Impression from just playing around with parameters: 
-% * Averaging bands after broadband computation = less noisy time course
+% * Averaging bands after broadband computation = preferred (less noisy time course)
 % * Mean power across bands higher R2/lower sse compared to amplitude and log power 
-% * Geomean and whitening don't improve results; not exact same effect
+% * Geomean leads to slightly higher r2 but does not work with logpower 9?)
+% * Whitening doesn't improve results
 
-% * Logpower overestimates tail of pred dn
-
-% Q: Dora's example code with log10 power subtracts mean across all bands,
-% implement that as another normalization option (e.g. compare
-% whiten/geomean/subtract mean/none)?
+% Q: Why is logpower doing so bad without noise (and better with noise)?
+% Perhaps not implemented correctly? (cf Dora method)
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -106,7 +105,7 @@ title([ti.String ' rsq = ' num2str(out.regress.rsq) ', sse = ' num2str(round(out
 
 params.plot.on = 'no'; % suppress plotting each individual analysis; plot results together in one plot instead 
 
-params.analysis.bands            = {[70 170], 10};     % {[lower bound,  upper bound], window sz}
+params.analysis.bands            = {[50 200], 10};     % {[lower bound,  upper bound], window sz}
 params.analysis.averagebandshow  = 'mean';             % geomean/mean
 params.analysis.averagebandswhen = 'after broadband';  % 'before broadband'/'after broadband'
 params.analysis.whitenbands      = 'no';               % yes/no
@@ -154,7 +153,8 @@ for ii = 1:length(powerMeasures)
     labels{ii+1} = [powerMeasures{ii} ': r2 = ' num2str(round(stats{ii}.regress.rsq,2))];
 end
 legend(labels, 'Location', 'NorthWest');
-title('broadband measure comparison');
+%title('broadband measure');
+title(params.simulation.resp);
 
 %% Question 2: temporal precision
 
@@ -322,7 +322,7 @@ params.simulation.srate       = 1000;                    % sample rate (Hz) (Q s
 
 % Set parameters for noisy samples
 params.simulation.n           = 100;                     % number of repeated trials
-params.simulation.seed        = [];                       % use same number to compare simulations for same random generator of samples; leave empty to use new generator every time
+params.simulation.seed        = 1;%[];                       % use same number to compare simulations for same random generator of samples; leave empty to use new generator every time
 
 % Set parameters for leaky integration
 params.simulation.alpha       = 0.1;       % time constant for dendritic leakage
@@ -330,7 +330,7 @@ params.simulation.tau         = 0.0023;    % time constant for post-synaptic cur
 
 % Set parameters for plotting
 params.plot.on     = 'no';
-params.plot.fontsz = 18; % font size
+params.plot.fontsz = 12; % font size
 params.plot.lnwdth = 3;  % line width    
 
 % Define frequency bands and method for extracting broadband
@@ -342,11 +342,12 @@ params.analysis.measure          = 'power';            % amplitude/power/logpowe
 [spikeRate, params] = generateNoiselessTimeCourse(params);
 [spikeArrivals, params] = generateNoisySampledTimeCourses(spikeRate, params);
 
-% Generate different noise regimes
+% GENERATE DIFFERENT NOISE REGIMES
+noiseLevels = [0 0.01 0.02 0.03 0.04 0.05];
+colors = parula(length(noiseLevels));
 
-% Set parameters for noise
-noiseLevels = [0.01 0.02 0.03 0.04 0.05];
-upperBounds = [120, 140, 160, 180, 200];
+% COMPARE UPPER BOUNDS
+upperBounds = [100 120 140 160 180 200];
 
 bb = [];
 stats = [];
@@ -361,25 +362,99 @@ for ii = 1:length(noiseLevels)
 end
 
 % PLOT
-
 rsqToPlot = [];
 labels = [];
 for ii = 1:length(noiseLevels)
     for jj = 1:length(upperBounds)
         rsqToPlot(ii,jj) = stats{ii,jj}.regress.rsq;
-        labels{ii} = ['noise level = ' num2str(noiseLevels(ii))];
+        labels{ii} = ['noise = ' num2str(noiseLevels(ii))];
     end
 end
  
-colors = parula(length(noiseLevels));
-
-figure;hold on
+fH = figure;  set(fH, 'Color', 'w'); hold on;
 for ii = 1:length(noiseLevels)
     plot(upperBounds, rsqToPlot(ii,:), 'Color', colors(ii,:), 'LineWidth', params.plot.lnwdth);
 end
 set(gca, 'FontSize', params.plot.fontsz)
 set(gca, 'XLim', [min(upperBounds)-10 max(upperBounds)+10], 'YLim', [0 1])
 xlabel('Upper bound')
+ylabel('R2')
+legend(labels);    
+title(params.simulation.resp);
+
+% COMPARE LOWER BOUNDS
+lowerBounds = [20 40 60 80 100];
+
+bb = [];
+stats = [];
+for ii = 1:length(noiseLevels)
+    params.simulation.amplnoise = noiseLevels(ii);      % amplifier noise: scale factor of signal variance (if 0, no noise is added)
+    [simulatedSignal] = generateIntegratedTimeSeries(spikeArrivals, params);
+    for jj = 1:length(lowerBounds)
+        params.analysis.bands = {[lowerBounds(jj) 150], 10};     
+        [bb{ii,jj}, params] = extractBroadband(simulatedSignal, params);
+        [stats{ii,jj}] = evaluateBroadband(spikeRate, bb{ii,jj}, params); 
+    end
+end
+
+% PLOT
+rsqToPlot = [];
+labels = [];
+for ii = 1:length(noiseLevels)
+    for jj = 1:length(lowerBounds)
+        rsqToPlot(ii,jj) = stats{ii,jj}.regress.rsq;
+        labels{ii} = ['noise = ' num2str(noiseLevels(ii))];
+    end
+end
+ 
+fH = figure;  set(fH, 'Color', 'w'); hold on;
+for ii = 1:length(noiseLevels)
+    plot(lowerBounds, rsqToPlot(ii,:), 'Color', colors(ii,:), 'LineWidth', params.plot.lnwdth);
+end
+set(gca, 'FontSize', params.plot.fontsz)
+set(gca, 'XLim', [min(lowerBounds)-10 max(lowerBounds)+10], 'YLim', [0 1])
+xlabel('Lower bound')
+ylabel('R2')
+legend(labels);    
+title(params.simulation.resp);
+
+% COMPARE RANGES
+lowerBounds = [20 40 60 80 100]; % will add 100 for upper bound
+
+bb = [];
+stats = [];
+for ii = 1:length(noiseLevels)
+    params.simulation.amplnoise = noiseLevels(ii);      % amplifier noise: scale factor of signal variance (if 0, no noise is added)
+    [simulatedSignal] = generateIntegratedTimeSeries(spikeArrivals, params);
+    for jj = 1:length(lowerBounds)
+        params.analysis.bands = {[lowerBounds(jj) lowerBounds(jj)+100], 10};     
+        [bb{ii,jj}, params] = extractBroadband(simulatedSignal, params);
+        [stats{ii,jj}] = evaluateBroadband(spikeRate, bb{ii,jj}, params); 
+    end
+end
+
+% PLOT
+rsqToPlot = [];
+labels = [];
+for ii = 1:length(noiseLevels)
+    for jj = 1:length(lowerBounds)
+        rsqToPlot(ii,jj) = stats{ii,jj}.regress.rsq;
+        labels{ii} = ['noise = ' num2str(noiseLevels(ii))];
+    end
+end
+ 
+fH = figure;  set(fH, 'Color', 'w'); hold on;
+for ii = 1:length(noiseLevels)
+    plot(lowerBounds, rsqToPlot(ii,:), 'Color', colors(ii,:), 'LineWidth', params.plot.lnwdth);
+end
+set(gca, 'FontSize', params.plot.fontsz)
+xnames = [];
+for jj = 1:length(lowerBounds)
+    xnames{jj} = [num2str(lowerBounds(jj)) '-' num2str(lowerBounds(jj)+100)];
+end
+set(gca, 'XTick', [min(lowerBounds):20:max(lowerBounds)], 'XTickLabel', xnames)
+set(gca, 'XLim', [min(lowerBounds)-10 max(lowerBounds)+10], 'YLim', [0 1])
+xlabel('Frequency range')
 ylabel('R2')
 legend(labels);    
 title(params.simulation.resp);
