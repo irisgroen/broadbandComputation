@@ -4,26 +4,13 @@ function [broadband, params] = extractBroadband(signal, params)
 % broadband = extractBroadband(x, srate, method, bands)
 %
 % Inputs
-%   signal:      data (time x n) (n is number of channels or epochs)
+%   signal:  data (time x n) (n is number of channels or epochs)
 %
-%   params.srate:  sample rate (Hz) [default = 1000]
-%
-%   params.method: method for computing broadband, can be a number 1-6, or a
-%            string. [default = 1]
-%               string
-%
-%                 1 'abs(hilbert(mean(whiten(bp(x)))))';
-%                 2 'abs(hilbert(mean(whiten(bp(x))))).^2';
-%                 3 'geomean(abs(hilbert(whiten(bp(x)))))';
-%                 4 'geomean(abs(hilbert(whiten(bp(x))).^2)';
-%                 5 'geomean(abs(hilbert(bp)).^2'
-%                 6 'mean(abs(hilbert(whiten(bp(x)))).^2)'
-%   params.bands:  required for methods 2-6. Can be a matrix (number of bands x 2)
-%                     or a cell array {[lb, ub], width}
+%   params:  set of parameters defining how broadband is computed; see
+%            s_simulateBroadband.m for descriptions
 
 srate  = params.simulation.srate;
 bands  = params.analysis.bands;
-%method = params.analysis.method;
 
 if isa(bands, 'cell')
     % Entire range for broadband
@@ -38,7 +25,6 @@ if isa(bands, 'cell')
     bands   = [lb; ub]';
 end
     
-
 % band pass filter each sub-band
 bp  = zeros([size(signal) size(bands,1)]);
 for ii = 1:size(bands,1)
@@ -51,7 +37,7 @@ if size(bp, 2) == 1, bp = squeeze(bp); end
 % which dimension represents the multiple bands?
 banddim = length(size(bp));
 
-%%%% functions %%%%
+%%%% FUNCTIONS %%%%
 
 % define whitening function
 whiten = @(x) (x - mean(x(:)))./ diff(prctile(x, [.25 .75]));
@@ -77,12 +63,12 @@ switch params.analysis.measure
     case 'logpower'
         bb = @(x) log10(abs(hilbert(x)).^2);
         bbstr = 'logpower';
-    case 'logpower normalized'
+    case 'logpower normalized' % dora method
         bb = @(x) log10(abs(hilbert(x)).^2) - mean(log10(abs(hilbert(x)).^2));
-        bbstr = 'logpower normalized';
+        bbstr = 'logpower norm';
 end
 
-%%%% computations %%%%
+%%%% COMPUTATIONS %%%%
 
 % apply whitening?
 switch params.analysis.whitenbands
