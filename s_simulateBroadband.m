@@ -14,9 +14,9 @@
 % ANALYSIS: After generating multiple noisy time series with the
 % identical underlying time-varying rate, we analyze the time series by
 % extracting the broadband envelope in each trial using one of several
-% algorithms. We then average the envelopes across trials computed by each
+% algorithms [4]. We then average the envelopes across trials computed by each
 % algorithm, and compare these time-varying broadband envelopes to the
-% noiseless time-varying rate used to seed the time series.
+% noiseless time-varying rate used to seed the time series [5].
 
 %% SIMULATION %%
 
@@ -33,16 +33,16 @@ params.simulation.n           = 100;                     % number of repeated tr
 params.simulation.seed        = 1;                       % use same number to compare simulations for same random generator of samples; leave empty to use new generator every time
 
 % Set parameters for leaky integration
-params.simulation.alpha       = 0.1;       % time constant for dendritic leakage
-params.simulation.tau         = 0.0023;    % time constant for post-synaptic current
+params.simulation.alpha       = 0.1;                     % time constant for dendritic leakage
+params.simulation.tau         = 0.0023;                  % time constant for post-synaptic current
 
 % Set parameters for noise
-params.simulation.amplnoise   = 0.01;      % amplifier noise: scale factor of signal variance (if 0, no noise is added)
+params.simulation.amplnoise   = 0.01;                    % amplifier noise: scale factor of signal variance (if 0, no noise is added)
 
 % Set parameters for plotting
-params.plot.on     = 'yes';
-params.plot.fontsz = 18; % font size
-params.plot.lnwdth = 3;  % line width    
+params.plot.on     = 'yes';                              % yes/no
+params.plot.fontsz = 18;                                 % font size
+params.plot.lnwdth = 3;                                  % line width    
 
 % [1] SIMULATE NOISELESS TIME SERIES
 
@@ -58,9 +58,9 @@ params.plot.lnwdth = 3;  % line width
 
 %% ANALYSIS %%
 
-% This is an example analyses of ONE type of broadband computation
+% This is an example analysis of ONE type of broadband computation
 
-% [1] COMPUTE BROADBAND
+% [4] COMPUTE BROADBAND
 
 % Define frequency bands and method for extracting broadband
 params.analysis.bands            = {[50 200], 10};          % {[lower bound,  upper bound], window sz}
@@ -71,20 +71,21 @@ params.analysis.measure          = 'power';   % amplitude/power/logpower/logpowe
 
 [estimatedBroadband, params] = extractBroadband(simulatedSignal, params);
 
-% [2] COMPARE WITH INPUT
+% [5] COMPARE WITH INPUT
 
 [out] = evaluateBroadband(spikeRate, estimatedBroadband, params); 
-% TO DO: develop more quantification metrics (now still empty)
 
 disp(out.regress.rsq);
 disp(out.regress.sse);
 ti = get(gca, 'Title');
 title([ti.String ' rsq = ' num2str(out.regress.rsq) ', sse = ' num2str(round(out.regress.sse))]);
 
+% TO DO: develop more quantification metrics (now still empty)
+
 % Impression from just playing around with parameters: 
 % * Averaging bands after broadband computation = preferred (less noisy time course)
 % * Mean power across bands higher R2/lower sse compared to amplitude and log power 
-% * Geomean leads to slightly higher r2 but does not work with logpower 9?)
+% * Geomean leads to slightly higher r2 but does not work with logpower, due to negative values
 % * Whitening doesn't improve results
 
 % Q: Why is logpower doing so bad without noise (and better with noise)?
@@ -99,8 +100,7 @@ title([ti.String ' rsq = ' num2str(out.regress.rsq) ', sse = ' num2str(round(out
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Question 1: amplitude vs. power vs log power 
 % How does the quality of broadband estimate vary using amplitude, power or log power estimates?
-% Prediction: 
-% Power best quality
+% Prediction: Power best quality
 % --> vary params.method
 
 params.plot.on = 'no'; % suppress plotting each individual analysis; plot results together in one plot instead 
@@ -159,8 +159,7 @@ title(params.simulation.resp);
 %% Question 2: temporal precision
 
 % How is temporal precision of broadband estimate affected by analysis parameters? 
-% Prediction: 
-% Time series containing sharp transients need wide bands (more time precision)
+% Prediction: Time series containing sharp transients need wide bands (more time precision)
 % --> vary params.resp / params.bands, where is the optimum?
 
 params.plot.on = 'no'; % suppress plotting each individual analysis; plot results together in one plot instead 
@@ -308,8 +307,7 @@ title('temporal precision');
 %% Question 3: Amplifier noise
 
 % How is the quality of the broadband estimate affected by amplifier noise
-% Prediction: 
-% Quality decreases for high bands under conditions of high noise
+% Prediction: Quality decreases for high bands under conditions of high noise
 % --> vary params.amplnoise / params.bands, where is the optimum?
 clear all;
 
