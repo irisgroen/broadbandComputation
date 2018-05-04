@@ -24,7 +24,7 @@
 params = [];
 
 % Set parameters for the noiseless, time-varying rate 
-params.simulation.resp        = 'noise';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
+params.simulation.resp        = 'pred dn';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
 params.simulation.t           = (-1999.5:1999.5)';       % trial length: trials are -2 to 2 seconds, and later clipped to [0 1] to avoid edge artifacts
 params.simulation.srate       = 1000;                    % sample rate (Hz) (Q shouldn't this go with the noisy sampling part? or would that be redundant)
 
@@ -58,7 +58,7 @@ params.plot.lnwdth = 3;  % line width
 
 %% ANALYSIS %%
 
-% This is an example analyses of one type of broadband computation
+% This is an example analyses of ONE type of broadband computation
 
 % [1] COMPUTE BROADBAND
 
@@ -73,8 +73,8 @@ params.analysis.measure          = 'power';   % amplitude/power/logpower/logpowe
 
 % [2] COMPARE WITH INPUT
 
-% TO DO: develop more quantification metrics (now still empty)
 [out] = evaluateBroadband(spikeRate, estimatedBroadband, params); 
+% TO DO: develop more quantification metrics (now still empty)
 
 disp(out.regress.rsq);
 disp(out.regress.sse);
@@ -154,7 +154,6 @@ for ii = 1:length(powerMeasures)
     labels{ii+1} = [powerMeasures{ii} ': r2 = ' num2str(round(stats{ii}.regress.rsq,2))];
 end
 legend(labels, 'Location', 'NorthWest');
-%title('broadband measure');
 title(params.simulation.resp);
 
 %% Question 2: temporal precision
@@ -312,6 +311,7 @@ title('temporal precision');
 % Prediction: 
 % Quality decreases for high bands under conditions of high noise
 % --> vary params.amplnoise / params.bands, where is the optimum?
+clear all;
 
 % Choose the reponse profile and integration method; add noise (optional)
 params = [];
@@ -353,7 +353,7 @@ upperBounds = [100 120 140 160 180 200];
 bb = [];
 stats = [];
 for ii = 1:length(noiseLevels)
-    params.simulation.amplnoise = noiseLevels(ii);      % amplifier noise: scale factor of signal variance (if 0, no noise is added)
+    params.simulation.amplnoise = noiseLevels(ii);      
     [simulatedSignal] = generateIntegratedTimeSeries(spikeArrivals, params);
     for jj = 1:length(upperBounds)
         params.analysis.bands = {[50 upperBounds(jj)], 10};     
@@ -389,7 +389,7 @@ lowerBounds = [20 40 60 80 100];
 bb = [];
 stats = [];
 for ii = 1:length(noiseLevels)
-    params.simulation.amplnoise = noiseLevels(ii);      % amplifier noise: scale factor of signal variance (if 0, no noise is added)
+    params.simulation.amplnoise = noiseLevels(ii);      
     [simulatedSignal] = generateIntegratedTimeSeries(spikeArrivals, params);
     for jj = 1:length(lowerBounds)
         params.analysis.bands = {[lowerBounds(jj) 150], 10};     
@@ -425,7 +425,7 @@ lowerBounds = [20 40 60 80 100]; % will add 100 for upper bound
 bb = [];
 stats = [];
 for ii = 1:length(noiseLevels)
-    params.simulation.amplnoise = noiseLevels(ii);      % amplifier noise: scale factor of signal variance (if 0, no noise is added)
+    params.simulation.amplnoise = noiseLevels(ii);      
     [simulatedSignal] = generateIntegratedTimeSeries(spikeArrivals, params);
     for jj = 1:length(lowerBounds)
         params.analysis.bands = {[lowerBounds(jj) lowerBounds(jj)+100], 10};     
@@ -465,7 +465,7 @@ title(params.simulation.resp);
 % Given assumptions XY, e.g. amplitude vs power, will affect interpretation
 % of selectivity (e.g. face response 2x or 4x as high as house response)
 % How well can we capture actual transients in the data?
-% Question: what are the BIG effects of choices made in analysis?
+% What are the BIG effects of choices made in analysis?
 
 
 

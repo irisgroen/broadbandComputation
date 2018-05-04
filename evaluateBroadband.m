@@ -33,12 +33,11 @@ out.fit = [];
 switch params.plot.on
     case 'yes'
         
-        fH = figure;  %set(fH, 'Color', 'w');
+        fH = figure;  set(fH, 'Color', 'w');
         
         % Subtract 'prestim' baseline
         baseline = meanBroadband(t > -1 & t < 0);
         meanBroadband = meanBroadband(idx) - mean(baseline);
-        %meanBroadband = meanBroadband(idx);
         
         % Scale for plotting
         mnToPlot = meanBroadband / norm(meanBroadband);
