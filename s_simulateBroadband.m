@@ -24,7 +24,7 @@
 params = [];
 
 % Set parameters for the noiseless, time-varying rate 
-params.simulation.resp        = 'steps';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
+params.simulation.resp        = 'noise';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
 params.simulation.t           = (-1999.5:1999.5)';       % trial length: trials are -2 to 2 seconds, and later clipped to [0 1] to avoid edge artifacts
 params.simulation.srate       = 1000;                    % sample rate (Hz) (Q shouldn't this go with the noisy sampling part? or would that be redundant)
 
@@ -67,7 +67,7 @@ params.analysis.bands            = {[50 200], 10};          % {[lower bound,  up
 params.analysis.averagebandshow  = 'mean';                  % geomean/mean
 params.analysis.averagebandswhen = 'after broadband';       % 'before broadband'/'after broadband'
 params.analysis.whitenbands      = 'yes';                   % yes/no
-params.analysis.measure          = 'logpower normalized';   % amplitude/power/logpower/logpower normalized (dora)
+params.analysis.measure          = 'power';   % amplitude/power/logpower/logpower normalized (dora)
 
 [estimatedBroadband, params] = extractBroadband(simulatedSignal, params);
 
@@ -104,6 +104,7 @@ title([ti.String ' rsq = ' num2str(out.regress.rsq) ', sse = ' num2str(round(out
 % --> vary params.method
 
 params.plot.on = 'no'; % suppress plotting each individual analysis; plot results together in one plot instead 
+params.plot.xl = [0 1];
 
 params.analysis.bands            = {[50 200], 10};     % {[lower bound,  upper bound], window sz}
 params.analysis.averagebandshow  = 'mean';             % geomean/mean

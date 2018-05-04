@@ -38,6 +38,7 @@ switch params.plot.on
         % Subtract 'prestim' baseline
         baseline = meanBroadband(t > -1 & t < 0);
         meanBroadband = meanBroadband(idx) - mean(baseline);
+        %meanBroadband = meanBroadband(idx);
         
         % Scale for plotting
         mnToPlot = meanBroadband / norm(meanBroadband);

@@ -32,15 +32,17 @@ switch params.simulation.resp
     case 'bump'
         t1  = 0.500; sigma = .030;
         gau = exp(-(t-t1).^2/(2*sigma^2));
-        spikeRate   = gau + 1;
+        spikeRate = gau; % + 1;
         xl = [.25 0.75];
         
     case 'square'
         spikeRate = square(2*pi*t*3)+2;
+        spikeRate(t<0) = 0;
         xl = [.2 0.8];
         
     case 'sine'
-        spikeRate = sin(2*pi*t*3)+2;
+        spikeRate = sin(2*pi*t*3)+1;
+        spikeRate(t<0) = 0;
         xl = [.2 0.8];
         
     case 'noise'
