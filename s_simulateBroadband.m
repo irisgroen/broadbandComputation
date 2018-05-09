@@ -63,10 +63,10 @@ params.plot.lnwdth = 3;                                  % line width
 % [4] COMPUTE BROADBAND
 
 % Define frequency bands and method for extracting broadband
-params.analysis.bands            = {[50 200], 10};          % {[lower bound,  upper bound], window sz}
-params.analysis.averagebandshow  = 'mean';                  % geomean/mean
-params.analysis.averagebandswhen = 'after broadband';       % 'before broadband'/'after broadband'
-params.analysis.whitenbands      = 'yes';                   % yes/no
+params.analysis.bands            = {[50 200], 10};        % {[lower bound,  upper bound], window sz}
+params.analysis.averagebandshow  = 'geomean';             % geomean/mean
+params.analysis.averagebandswhen = 'after hilbert';       % 'before hilbert'/'after hilbert'
+params.analysis.whitenbands      = 'yes';                 % yes/no
 params.analysis.measure          = 'power';   % amplitude/power/logpower/logpower normalized (dora)
 
 [estimatedBroadband, params] = extractBroadband(simulatedSignal, params);
@@ -108,7 +108,7 @@ params.plot.xl = [0 1];
 
 params.analysis.bands            = {[50 200], 10};     % {[lower bound,  upper bound], window sz}
 params.analysis.averagebandshow  = 'mean';             % geomean/mean
-params.analysis.averagebandswhen = 'after broadband';  % 'before broadband'/'after broadband'
+params.analysis.averagebandswhen = 'after hilbert';    % 'before hilbert'/'after hilbert'
 params.analysis.whitenbands      = 'no';               % yes/no
 
 powerMeasures = {'amplitude', 'power', 'logpower'};
@@ -165,7 +165,7 @@ title(params.simulation.resp);
 params.plot.on = 'no'; % suppress plotting each individual analysis; plot results together in one plot instead 
 
 params.analysis.averagebandshow  = 'mean';             % geomean/mean
-params.analysis.averagebandswhen = 'after broadband';  % 'before broadband'/'after broadband'
+params.analysis.averagebandswhen = 'after hilbert';    % 'before hilbert'/'after hilbert'
 params.analysis.whitenbands      = 'no';               % yes/no
 params.analysis.measure          = 'power';    
 
@@ -334,7 +334,7 @@ params.plot.lnwdth = 3;  % line width
 
 % Define frequency bands and method for extracting broadband
 params.analysis.averagebandshow  = 'mean';             % geomean/mean
-params.analysis.averagebandswhen = 'after broadband';  % 'before broadband'/'after broadband'
+params.analysis.averagebandswhen = 'after hilbert';    % 'before hilbert'/'after hilbert'
 params.analysis.whitenbands      = 'no';               % yes/no
 params.analysis.measure          = 'power';            % amplitude/power/logpower
 

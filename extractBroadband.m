@@ -80,10 +80,10 @@ switch params.analysis.whitenbands
 end
 
 switch params.analysis.averagebandswhen
-    case 'before broadband'
+    case 'before hilbert'
         broadband = bb(mn(bp,banddim));
         methodstr = [bbstr ' ' mnstr ' ' whitenstr ' '];
-    case 'after broadband'   
+    case 'after hilbert'   
         broadband = mn(bb(bp),banddim);
         methodstr = [mnstr ' ' bbstr ' ' whitenstr ' '];
 end
