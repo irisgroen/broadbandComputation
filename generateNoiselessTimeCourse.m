@@ -36,12 +36,20 @@ switch params.simulation.resp
         xl = [.25 0.75];
         
     case 'square'
-        spikeRate = square(2*pi*t*3)+2;
+        if isfield(params.simulation.opt, 'f')
+            f = params.simulation.opt.f;
+        else, f = 3;
+        end
+        spikeRate = square(2*pi*t*f)+2;
         spikeRate(t<0) = 0;
         xl = [.2 0.8];
         
     case 'sine'
-        spikeRate = sin(2*pi*t*3)+1;
+        if isfield(params.simulation.opt, 'f')
+            f = params.simulation.opt.f;
+        else, f = 3;
+        end
+        spikeRate = sin(2*pi*t*f)+1;
         spikeRate(t<0) = 0;
         xl = [.2 0.8];
         

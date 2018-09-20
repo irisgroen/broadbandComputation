@@ -24,9 +24,10 @@
 params = [];
 
 % Set parameters for the noiseless, time-varying rate 
-params.simulation.resp        = 'pred dn';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
+params.simulation.resp        = 'sine';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
 params.simulation.t           = (-1999.5:1999.5)';       % trial length: trials are -2 to 2 seconds, and later clipped to [0 1] to avoid edge artifacts
 params.simulation.srate       = 1000;                    % sample rate (Hz) (Q shouldn't this go with the noisy sampling part? or would that be redundant)
+params.simulation.opt.f       = 10;                      % temporal frequency of response profile, applicable to sine wave or square wave
 
 % Set parameters for noisy samples
 params.simulation.n           = 100;                     % number of repeated trials
@@ -63,7 +64,7 @@ params.plot.lnwdth = 3;                                  % line width
 % [4] COMPUTE BROADBAND
 
 % Define frequency bands and method for extracting broadband
-params.analysis.bands            = {[50 200], 10};        % {[lower bound,  upper bound], window sz}
+params.analysis.bands            = {[50 70], 10};        % {[lower bound,  upper bound], window sz}
 params.analysis.averagebandshow  = 'geomean';             % geomean/mean
 params.analysis.averagebandswhen = 'after hilbert';       % 'before hilbert'/'after hilbert'
 params.analysis.whitenbands      = 'yes';                 % yes/no
@@ -464,19 +465,3 @@ title(params.simulation.resp);
 % of selectivity (e.g. face response 2x or 4x as high as house response)
 % How well can we capture actual transients in the data?
 % What are the BIG effects of choices made in analysis?
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
