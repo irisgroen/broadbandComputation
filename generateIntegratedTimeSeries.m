@@ -1,16 +1,17 @@
 function [signal] = generateIntegratedTimeSeries(spikeArrivals, params)
 
 
-% Simulate leaky integration in the dendrite to generate time-varying dendritic currents
+% Simulate leaky integration in the dendrite to generate time-varying
+% dendritic currents
 alpha = params.simulation.alpha;
 tau   = params.simulation.tau;
 
 t = params.simulation.t/params.simulation.srate; 
 dt = 1/params.simulation.srate;   % time step for simulations
 
-% Post-synaptic current impulse response function. This current (multiplied by
-% the synaptic weight) is initiated each time a spike arrives. It rises quickly and falls
-% slowly. Normalize it to sum of 1.
+% Post-synaptic current impulse response function. This current (multiplied
+% by the synaptic weight) is initiated each time a spike arrives. It rises
+% quickly and falls slowly. Normalize it to sum of 1.
 psc = exp(-1/tau*(0:dt:.100))'; psc = psc / sum(psc);
 
 % Post-synaptic current (Q)

@@ -43,10 +43,12 @@ switch params.plot.on
         mnToPlot = meanBroadband / norm(meanBroadband);
         spikeRateToPlot = spikeRate(idx) / norm(spikeRate(idx));
         
-        plot(t(idx), mnToPlot, t(idx), spikeRateToPlot, 'k-', 'LineWidth', params.plot.lnwdth)
+        plot(t(idx), spikeRateToPlot, t(idx), mnToPlot, 'k-', 'LineWidth', params.plot.lnwdth)
         title(params.analysis.methodstr)
         set(gca, 'XLim', params.plot.xl);
         set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl)
         xlabel('Time (s)')
         ylabel('Response')
+        legend('Noiseless time series', 'Estimated broadband signal')
+
 end

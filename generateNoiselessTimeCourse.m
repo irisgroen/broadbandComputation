@@ -73,7 +73,6 @@ switch params.plot.on
         set(gca, 'XLim', xl, 'FontSize', params.plot.fontsz)
         xlabel('Time (s)')
         xlabel('Spike Rate')
-
 end
 
 params.plot.xl = xl;
