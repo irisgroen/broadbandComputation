@@ -14,7 +14,7 @@ params = [];
 % Set parameters for the noiseless, time-varying rate 
 params.simulation.resp        = 'sine';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
 params.simulation.t           = (-1999.5:1999.5)';       % trial length: trials are -2 to 2 seconds, and later clipped to [0 1] to avoid edge artifacts
-params.simulation.srate       = 1000;                    % sample rate (Hz) (Q shouldn't this go with the noisy sampling part? or would that be redundant)
+params.simulation.srate       = 1000;                    % sample rate (Hz) 
 params.simulation.opt.f       = 10;                      % temporal frequency of response profile, applicable to sine wave or square wave
 
 % Set parameters for noisy samples
@@ -26,7 +26,7 @@ params.simulation.alpha       = 0.1;                     % time constant for den
 params.simulation.tau         = 0.0023;                  % time constant for post-synaptic current
 
 % Set parameters for noise
-params.simulation.amplnoise   = 0.01;                    % amplifier noise: scale factor of signal variance (if 0, no noise is added)
+params.simulation.amplnoise   = 0; %0.01;                    % amplifier noise: scale factor of signal variance (if 0, no noise is added)
 
 % ANALYSIS parameters
 
@@ -36,6 +36,7 @@ params.analysis.averagebandswhen = 'after hilbert';    % 'before hilbert'/'after
 params.analysis.whitenbands      = 'no';               % yes/no
 
 % PLOTTING parameters
+
 params.plot.on = 'no';                                  % suppress plotting of simulations and each individual analysis
 params.plot.fontsz = 18;                                % font size
 params.plot.lnwdth = 3;                                 % line width    
@@ -48,14 +49,14 @@ params.plot.lnwdth = 3;                                 % line width
 
 %% ANALYZE
 
-powerMeasures = {'amplitude', 'power', 'logpower'};
+powerMeasures = {'amplitude', 'power', 'logpower', 'logpower normalized'};
 colors = copper(length(powerMeasures));
 
 bb = []; stats = [];
 for ii = 1:length(powerMeasures)
     params.analysis.measure = powerMeasures{ii};          
-    [bb{ii}, params] = extractBroadband(simulatedSignal, params);
-    [stats{ii}] = evaluateBroadband(spikeRate, bb{ii}, params); 
+    [bb{ii}.out, bb{ii}.params] = extractBroadband(simulatedSignal, params);
+    [stats{ii}] = evaluateBroadband(spikeRate, bb{ii}.out, params); 
 end
 
 %% PLOT
@@ -74,7 +75,7 @@ labels{1} = 'idealized spike rate';
 
 for ii = 1:length(powerMeasures)
     
-    meanBroadband = mean(bb{ii},2);
+    meanBroadband = mean(bb{ii}.out,2);
     
     % Subtract 'prestim' baseline
     baseline = meanBroadband(t > -1 & t < 0);
@@ -84,11 +85,11 @@ for ii = 1:length(powerMeasures)
     mnToPlot = meanBroadband / norm(meanBroadband);
     
     plot(t(idx), mnToPlot, 'Color', colors(ii,:), 'LineWidth', params.plot.lnwdth)
-    set(gca, 'XLim', params.plot.xl);
-    set(gca, 'FontSize', params.plot.fontsz, 'XLim', [0 1])
-    xlabel('Time (s)')
-    ylabel('Response')
     labels{ii+1} = [powerMeasures{ii} ': r2 = ' num2str(round(stats{ii}.regress.rsq,2))];
 end
+set(gca, 'XLim', params.plot.xl);
+set(gca, 'FontSize', params.plot.fontsz, 'XLim', [0 1])
+xlabel('Time (s)')
+ylabel('Response')
 legend(labels, 'Location', 'NorthWest');
-title(params.simulation.resp);
+title('comparison of broadband measure');

@@ -13,7 +13,7 @@ params = [];
 % Set parameters for the noiseless, time-varying rate 
 params.simulation.resp        = 'sine';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
 params.simulation.t           = (-1999.5:1999.5)';       % trial length: trials are -2 to 2 seconds, and later clipped to [0 1] to avoid edge artifacts
-params.simulation.srate       = 1000;                    % sample rate (Hz) (Q shouldn't this go with the noisy sampling part? or would that be redundant)
+params.simulation.srate       = 1000;                    % sample rate (Hz) 
 params.simulation.opt.f       = 10;                      % temporal frequency of response profile, applicable to sine wave or square wave
 
 % Set parameters for noisy samples
@@ -35,10 +35,82 @@ params.analysis.whitenbands      = 'no';               % yes/no
 params.analysis.measure          = 'power';    
 
 % PLOTTING parameters
+
 params.plot.on = 'no';                                  % suppress plotting of simulations and each individual analysis
 params.plot.fontsz = 18;                                 % font size
 params.plot.lnwdth = 3;                                  % line width    
 
+%% SIMULATE & ANALYZE
+
+% COMPARE multiple temporal frequencies
+
+params.simulation.resp        = 'sine';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
+tempFrequencies               = [1:3:30];
+windowSizes                   = {1, 5, 10, 25, 50};
+
+bb = [];
+stats = [];
+for ii = 1:length(tempFrequencies)
+    params.simulation.opt.f = tempFrequencies(ii);      
+    [spikeRate, params] = generateNoiselessTimeCourse(params);
+    [spikeArrivals, params] = generateNoisySampledTimeCourses(spikeRate, params);
+    [simulatedSignal] = generateIntegratedTimeSeries(spikeArrivals, params);    
+    for jj = 1:length(windowSizes)
+        params.analysis.bands  = {[50 200], windowSizes{jj}};     % {[lower bound,  upper bound], window sz}   
+        [bb{ii,jj}.out, bb{ii,jj}.params] = extractBroadband(simulatedSignal, params);
+        [stats{ii,jj}] = evaluateBroadband(spikeRate, bb{ii,jj}.out, params); 
+    end
+end
+
+%% PLOT
+
+rsqToPlot = [];
+labels = [];
+colors = jet(length(windowSizes));
+
+for ii = 1:length(tempFrequencies)
+    for jj = 1:length(windowSizes)
+        rsqToPlot(ii,jj) = stats{ii,jj}.regress.rsq;
+        labels{jj} = ['bandwidth = ' num2str(windowSizes{jj})];
+    end
+end
+ 
+fH = figure;  set(fH, 'Color', 'w'); hold on;
+for jj = 1:length(windowSizes)
+    plot(tempFrequencies, rsqToPlot(:,jj), 'Color', colors(jj,:), 'Marker', 'o', 'LineWidth', params.plot.lnwdth);
+end
+set(gca, 'FontSize', params.plot.fontsz)
+
+xlabel('Input frequency (Hz)')
+ylabel('R2')
+legend(labels, 'Location', 'NorthEast');
+title('R2 with varying bandwidths for analysis');
+
+amplToPlot = [];
+for ii = 1:length(tempFrequencies)
+    for jj = 1:length(windowSizes)
+        
+        % Average across trials
+        meanBroadband = mean(bb{ii,jj}.out,2);
+        % Subtract 'prestim' baseline
+        baseline = meanBroadband(t > -1 & t < 0);
+        meanBroadband = meanBroadband(idx) - mean(baseline);
+        % Average across time
+        amplToPlot(ii,jj) = mean(meanBroadband);
+    end
+end
+ 
+fH = figure;  set(fH, 'Color', 'w'); hold on;
+for jj = 1:length(windowSizes)
+    plot(tempFrequencies, amplToPlot(:,jj), 'Color', colors(jj,:), 'Marker', 'o', 'LineWidth', params.plot.lnwdth);
+end
+set(gca, 'FontSize', params.plot.fontsz)
+
+xlabel('Input frequency (Hz)')
+ylabel('Broadband amplitude')
+legend(labels, 'Location', 'NorthEast');
+title('amplitude with varying bandwidths for analysis');
+    
 %% SIMULATE
 
 [spikeRate, params] = generateNoiselessTimeCourse(params);
@@ -140,7 +212,7 @@ end
 legend(labels, 'Location', 'NorthWest');
 title('temporal precision');
 
-%% ANALYZE: lower bounds
+%% ANALYZE: upper bounds
 
 upperBounds = {120, 140, 160, 180, 200};
 colors = jet(length(windowSizes));

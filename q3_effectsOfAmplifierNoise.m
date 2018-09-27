@@ -13,7 +13,7 @@ params = [];
 % Set parameters for the noiseless, time-varying rate 
 params.simulation.resp        = 'steps';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
 params.simulation.t           = (-1999.5:1999.5)';       % trial length: trials are -2 to 2 seconds, and later clipped to [0 1] to avoid edge artifacts
-params.simulation.srate       = 1000;                    % sample rate (Hz) (Q shouldn't this go with the noisy sampling part? or would that be redundant)
+params.simulation.srate       = 1000;                    % sample rate (Hz) 
 
 % Set parameters for noisy samples
 params.simulation.n           = 100;                     % number of repeated trials
