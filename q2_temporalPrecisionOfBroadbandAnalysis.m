@@ -32,7 +32,7 @@ params.simulation.amplnoise   = 0.01;                    % amplifier noise: scal
 params.analysis.averagebandshow  = 'mean';             % geomean/mean
 params.analysis.averagebandswhen = 'after hilbert';    % 'before hilbert'/'after hilbert'
 params.analysis.whitenbands      = 'no';               % yes/no
-params.analysis.measure          = 'power';    
+params.analysis.measure          = 'amplitude';        % amplitude/power/logpower/logpower normalized (dora)
 
 % PLOTTING parameters
 
@@ -48,8 +48,8 @@ params.simulation.resp        = 'sine';               % response profile: choose
 tempFrequencies               = [1:3:30];
 windowSizes                   = {1, 5, 10, 25, 50};
 
-bb = [];
-stats = [];
+bb1 = []; bb2 = [];
+stats1 = [];stats2 = [];
 for ii = 1:length(tempFrequencies)
     params.simulation.opt.f = tempFrequencies(ii);      
     [spikeRate, params] = generateNoiselessTimeCourse(params);
@@ -57,12 +57,18 @@ for ii = 1:length(tempFrequencies)
     [simulatedSignal] = generateIntegratedTimeSeries(spikeArrivals, params);    
     for jj = 1:length(windowSizes)
         params.analysis.bands  = {[50 200], windowSizes{jj}};     % {[lower bound,  upper bound], window sz}   
-        [bb{ii,jj}.out, bb{ii,jj}.params] = extractBroadband(simulatedSignal, params);
-        [stats{ii,jj}] = evaluateBroadband(spikeRate, bb{ii,jj}.out, params); 
+        params.analysis.measure = 'amplitude';
+        [bb1{ii,jj}.out, bb1{ii,jj}.params] = extractBroadband(simulatedSignal, params);
+        [stats1{ii,jj}] = evaluateBroadband(spikeRate, bb1{ii,jj}.out, params); 
+        params.analysis.measure = 'power';
+        [bb2{ii,jj}.out, bb2{ii,jj}.params] = extractBroadband(simulatedSignal, params);
+        [stats2{ii,jj}] = evaluateBroadband(spikeRate, bb2{ii,jj}.out, params);
     end
 end
 
 %% PLOT
+bb = bb2;
+stats = stats2;
 
 rsqToPlot = [];
 labels = [];
@@ -85,6 +91,10 @@ xlabel('Input frequency (Hz)')
 ylabel('R2')
 legend(labels, 'Location', 'NorthEast');
 title('R2 with varying bandwidths for analysis');
+
+t = params.simulation.t/params.simulation.srate;
+% Clip time series to avoid edge artifacts
+idx = t > 0 & t < 1;
 
 amplToPlot = [];
 for ii = 1:length(tempFrequencies)
@@ -109,7 +119,7 @@ set(gca, 'FontSize', params.plot.fontsz)
 xlabel('Input frequency (Hz)')
 ylabel('Broadband amplitude')
 legend(labels, 'Location', 'NorthEast');
-title('amplitude with varying bandwidths for analysis');
+title(['mean broadband ' bb{1,1}.params.analysis.measure ' with varying bandwidths']);
     
 %% SIMULATE
 
