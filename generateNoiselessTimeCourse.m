@@ -5,8 +5,11 @@ if ~isfield(params.simulation, 'resp') || isempty(params.simulation.resp)
     params.simulation.resp = 'step';
 end
 
+
 t = params.simulation.t/params.simulation.srate; 
-spikeRate = zeros(size(t));
+spontaneousRate = 0;% (1/params.simulation.srate)*10;
+spikeRate = zeros(size(t))+spontaneousRate;
+
 
 switch params.simulation.resp
     case 'boxcar'
@@ -32,7 +35,7 @@ switch params.simulation.resp
     case 'bump'
         t1  = 0.500; sigma = .030;
         gau = exp(-(t-t1).^2/(2*sigma^2));
-        spikeRate = gau; % + 1;
+        spikeRate = gau+spontaneousRate; % + 1;
         xl = [.25 0.75];
         
     case 'square'
@@ -40,8 +43,8 @@ switch params.simulation.resp
             f = params.simulation.opt.f;
         else, f = 3;
         end
-        spikeRate = square(2*pi*t*f)+2;
-        spikeRate(t<0) = 0;
+        spikeRate = square(2*pi*t*f)+2+spontaneousRate;
+        spikeRate(t<0) = spontaneousRate;
         xl = [.2 0.8];
         
     case 'sine'
@@ -49,17 +52,17 @@ switch params.simulation.resp
             f = params.simulation.opt.f;
         else, f = 3;
         end
-        spikeRate = sin(2*pi*t*f)+1;
-        spikeRate(t<0) = 0;
+        spikeRate = sin(2*pi*t*f)+1+spontaneousRate;
+        spikeRate(t<0) = spontaneousRate;
         xl = [.2 0.8];
         
     case 'noise'
-        spikeRate = smooth(rand(size(t)), 50);
+        spikeRate = smooth(rand(size(t)), 50)+spontaneousRate;
         xl = [0 .5];
         
     case 'pred dn'
         tmp = load('predDn.mat', 'predDn');
-        spikeRate = tmp.predDn;
+        spikeRate = tmp.predDn+spontaneousRate;
         xl = [0 1];
         
 end
