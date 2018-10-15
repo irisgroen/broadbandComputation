@@ -26,7 +26,7 @@ params.simulation.alpha       = 0.1;                     % time constant for den
 params.simulation.tau         = 0.0023;                  % time constant for post-synaptic current
 
 % Set parameters for noise
-params.simulation.amplnoise   = 0; %0.01;                    % amplifier noise: scale factor of signal variance (if 0, no noise is added)
+params.simulation.amplnoise   = 0% %0.01;                    % amplifier noise: scale factor of signal variance (if 0, no noise is added)
 
 % ANALYSIS parameters
 
@@ -49,7 +49,7 @@ params.plot.lnwdth = 3;                                 % line width
 
 %% ANALYZE
 
-powerMeasures = {'amplitude', 'power', 'logpower', 'logpower normalized'};
+powerMeasures = {'amplitude', 'power', 'logpower'};
 colors = copper(length(powerMeasures));
 
 bb = []; stats = [];
@@ -83,16 +83,9 @@ for ii = 1:length(powerMeasures)
     meanBroadband = mean(bb{ii}.out,2);
 
     % Scale broadband to calibrated response
-    meanBroadband = meanBroadband / (bb{ii}.params.analysis.calibration(2)-bb{ii}.params.analysis.calibration(1));
+    meanBroadbandCalibrated = bb{ii}.params.analysis.calibrate(meanBroadband);
 
-    % Subtract 'prestim' baseline
-    baseline = meanBroadband(t > -1 & t < 0);
-    meanBroadband = meanBroadband(idx) - mean(baseline);
-
-    % Scale for plotting
-    %mnToPlot = meanBroadband / norm(meanBroadband);
-    
-    plot(t(idx), meanBroadband, 'Color', colors(ii,:), 'LineWidth', params.plot.lnwdth)
+    plot(t(idx), meanBroadbandCalibrated(idx), 'Color', colors(ii,:), 'LineWidth', params.plot.lnwdth)
     labels{ii+1} = [powerMeasures{ii} ': r2 = ' num2str(round(stats{ii}.regress.rsq,2))];
 end
 
@@ -103,5 +96,5 @@ ylabel('Response')
 legend(labels, 'Location', 'NorthWest');
 title('comparison of broadband measure');
 
-% to add: scatter plot of response levels vs. broadband level
+%% to add: scatter plot of response levels vs. broadband level
 

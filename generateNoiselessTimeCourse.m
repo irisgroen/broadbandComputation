@@ -10,7 +10,6 @@ t = params.simulation.t/params.simulation.srate;
 spontaneousRate = (1/params.simulation.srate)*10;
 spikeRate = zeros(size(t))+spontaneousRate;
 
-
 switch params.simulation.resp
     case 'boxcar'
         spikeRate(t>.2 & t < .7) = 1;
@@ -25,6 +24,10 @@ switch params.simulation.resp
         xl = [0 1];%[0.4 0.6];
         
     case 'steps'
+%         spikeRate(t>0.1)   = spikeRate(t>0.1) + 0.1; %1
+%         spikeRate(t>0.25)  = spikeRate(t>0.25)+ 0.2; %2
+%         spikeRate(t>.5)    = spikeRate(t>0.5) + 1;%0.3; %3
+%         spikeRate(t>.75)   = spikeRate(t>0.75)+ 3;%0.9; %9
         spikeRate(t>0.1)   = 1;
         spikeRate(t>0.25)  = 2;
         spikeRate(t>.5)    = 3;
