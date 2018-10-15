@@ -7,7 +7,7 @@ end
 
 
 t = params.simulation.t/params.simulation.srate; 
-spontaneousRate = 0;% (1/params.simulation.srate)*10;
+spontaneousRate = (1/params.simulation.srate)*10;
 spikeRate = zeros(size(t))+spontaneousRate;
 
 
@@ -21,9 +21,8 @@ switch params.simulation.resp
         xl = [.4 0.6];
         
     case 'step'
-        spikeRate(t>0.5) = 1;
-        spikeRate = spikeRate + 1;
-        xl = [0.4 0.6];
+        spikeRate(t>0.5) = spikeRate(t>0.5) + 1;
+        xl = [0 1];%[0.4 0.6];
         
     case 'steps'
         spikeRate(t>0.1)   = 1;
@@ -75,7 +74,7 @@ switch params.plot.on
         title('Noiseless time series')
         set(gca, 'XLim', xl, 'FontSize', params.plot.fontsz)
         xlabel('Time (s)')
-        xlabel('Spike Rate')
+        ylabel('Spike Rate')
 end
 
 params.plot.xl = xl;
