@@ -12,7 +12,7 @@ params = [];
 % SIMULATION parameters
 
 % Set parameters for the noiseless, time-varying rate 
-params.simulation.resp        = 'steps';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
+params.simulation.resp        = 'bigsteps';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
 params.simulation.t           = (-1999.5:1999.5)';       % trial length: trials are -2 to 2 seconds, and later clipped to [0 1] to avoid edge artifacts
 params.simulation.srate       = 1000;                    % sample rate (Hz) 
 params.simulation.opt.f       = 10;                      % temporal frequency of response profile, applicable to sine wave or square wave
@@ -26,7 +26,7 @@ params.simulation.alpha       = 0.1;                     % time constant for den
 params.simulation.tau         = 0.0023;                  % time constant for post-synaptic current
 
 % Set parameters for noise
-params.simulation.amplnoise   = 0% %0.01;                    % amplifier noise: scale factor of signal variance (if 0, no noise is added)
+params.simulation.amplnoise   = 0;% %0.01;                    % amplifier noise: scale factor of signal variance (if 0, no noise is added)
 
 % ANALYSIS parameters
 

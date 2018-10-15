@@ -23,11 +23,14 @@ switch params.simulation.resp
         spikeRate(t>0.5) = spikeRate(t>0.5) + 1;
         xl = [0 1];%[0.4 0.6];
         
-    case 'steps'
-%         spikeRate(t>0.1)   = spikeRate(t>0.1) + 0.1; %1
-%         spikeRate(t>0.25)  = spikeRate(t>0.25)+ 0.2; %2
-%         spikeRate(t>.5)    = spikeRate(t>0.5) + 1;%0.3; %3
-%         spikeRate(t>.75)   = spikeRate(t>0.75)+ 3;%0.9; %9
+    case 'smallsteps'
+        spikeRate(t>0.1)   = spikeRate(t>0.1) + 0.1; 
+        spikeRate(t>0.25)  = spikeRate(t>0.25)+ 0.2; 
+        spikeRate(t>0.5)   = spikeRate(t>0.5) + 0.3; 
+        spikeRate(t>0.75)  = spikeRate(t>0.75)+ 0.4; 
+        xl = [0 1];
+        
+	case 'bigsteps'
         spikeRate(t>0.1)   = 1;
         spikeRate(t>0.25)  = 2;
         spikeRate(t>.5)    = 3;
