@@ -63,9 +63,11 @@ switch params.analysis.measure
     case 'logpower'
         bb = @(x) log10(abs(hilbert(x)).^2);
         bbstr = 'logpower';
-    case 'logpower normalized' % dora method
-        bb = @(x) log10(abs(hilbert(x)).^2) - mean(log10(abs(hilbert(x)).^2));
-        bbstr = 'logpower norm';
+%     case 'logpower normalized' % dora method
+%         bb = @(x) log10(abs(hilbert(x)).^2) - mean(log10(abs(hilbert(x)).^2));
+%         bbstr = 'logpower norm';
+    otherwise
+        error('Unrecognized measure %s', params.analysis.measure)
 end
 
 %%%% COMPUTATIONS %%%%
@@ -89,9 +91,9 @@ switch params.analysis.averagebandswhen
 end
 
 % epoch the broadband time series
-nt = length(params.simulation.t);
-n  = params.simulation.n;
-broadband = reshape(broadband, nt, n);
+% nt = length(params.simulation.t);
+% n  = params.simulation.n;
+% broadband = reshape(broadband, nt, n);
 
 params.analysis.methodstr = methodstr;
 

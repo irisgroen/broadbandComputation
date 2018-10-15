@@ -13,7 +13,7 @@ t = params.simulation.t/params.simulation.srate;
 meanBroadband = mean(broadband,2);
 
 % Scale broadband to calibrated response
-meanBroadband = meanBroadband / (params.analysis.calibration(2)-params.analysis.calibration(1));
+meanBroadband = params.analysis.calibration(meanBroadband);
 
 % Clip time series to avoid edge artifacts
 idx = t > 0 & t < 1;
@@ -43,8 +43,9 @@ switch params.plot.on
         fH = figure;  set(fH, 'Color', 'w');
         
         % Subtract 'prestim' baseline
-        baseline = meanBroadband(t > -1 & t < 0);
-        meanBroadband = meanBroadband(idx) - mean(baseline);
+        % baseline = meanBroadband(t > -1 & t < 0);
+        % meanBroadband = meanBroadband(idx) - mean(baseline);
+        meanBroadband = meanBroadband(idx) ;
         
         % Scale for plotting
         mnToPlot = meanBroadband; %/ norm(meanBroadband);
