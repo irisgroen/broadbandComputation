@@ -102,3 +102,6 @@ xlabel('Time (s)')
 ylabel('Response')
 legend(labels, 'Location', 'NorthWest');
 title('comparison of broadband measure');
+
+% to add: scatter plot of response levels vs. broadband level
+
