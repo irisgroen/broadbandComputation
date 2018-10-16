@@ -45,7 +45,7 @@ switch params.plot.on
         xlabel('x (spikeRate)');
         ylabel('y (estimatedBroadband)')
         set(gca, 'FontSize', params.plot.fontsz)
-        legend({'calibrated points', 'extrapolated points'}, 'Location', 'NorthWest');
+        legend({'Calibrated points', 'Extrapolated points'}, 'Location', 'NorthWest');
 end
 
 % Add calibration function handle to params
