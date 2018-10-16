@@ -70,6 +70,14 @@ switch params.simulation.resp
         spikeRate = tmp.predDn+spontaneousRate;
         xl = [0 1];
         
+    case 'level'
+        if isfield(params.simulation.opt, 'level')
+            level = params.simulation.opt.level;
+        else, level = 1;
+        end
+        %spikeRate(t>0) = spikeRate(t>0) + level;
+        spikeRate = spikeRate + level;
+        xl = [0 1]; %[0.4 0.6];
 end
 
 switch params.plot.on
