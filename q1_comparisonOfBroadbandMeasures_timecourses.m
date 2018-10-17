@@ -94,7 +94,7 @@ set(gca, 'FontSize', bb{1}.params.plot.fontsz, 'XLim', [0 1])
 xlabel('Time (s)')
 ylabel('Response')
 legend(labels, 'Location', 'NorthWest');
-title('comparison of broadband measure');
+title('comparison of broadband measures');
 
 %% to add: scatter plot of response levels vs. broadband level
 

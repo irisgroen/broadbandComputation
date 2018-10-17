@@ -75,9 +75,9 @@ switch params.simulation.resp
             level = params.simulation.opt.level;
         else, level = 1;
         end
-        %spikeRate(t>0) = spikeRate(t>0) + level;
-        spikeRate = spikeRate + level;
-        xl = [0 1]; %[0.4 0.6];
+        spikeRate(t>-1) = spikeRate(t>-1) + level;
+        %spikeRate = spikeRate + level;
+        xl = [-2 2]; %[0.4 0.6];
 end
 
 switch params.plot.on
