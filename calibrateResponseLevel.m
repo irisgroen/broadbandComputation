@@ -46,6 +46,10 @@ switch params.plot.on
         ylabel('y (estimatedBroadband)')
         set(gca, 'FontSize', params.plot.fontsz)
         legend({'Calibrated points', 'Extrapolated points'}, 'Location', 'NorthWest');
+        xl = get(gca, 'XLim');
+        yl = get(gca, 'YLim');
+        plot(xl, [0 0], 'k--', [0 0], yl, 'k--')
+        
 end
 
 % Add calibration function handle to params

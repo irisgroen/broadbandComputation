@@ -28,7 +28,7 @@ params.simulation.alpha       = 0.1;                     % time constant for den
 params.simulation.tau         = 0.0023;                  % time constant for post-synaptic current
 
 % Set parameters for noise
-params.simulation.amplnoise   = 0;% %0.01;               % amplifier noise: scale factor of signal variance (if 0, no noise is added)
+params.simulation.amplnoise   = 0.01;%0.01;               % amplifier noise: scale factor of signal variance (if 0, no noise is added)
 
 % ANALYSIS parameters
 
@@ -48,7 +48,7 @@ params.plot.lnwdth = 3;                                 % line width
 % DEFINE levels to be tested
 
 inputLevels = ((1:20)/20).^4; % range between 0 and 1
-%inputLevels = ((1:20)/16).^4; % range between 0 and 2.44
+inputLevels = ((1:20)/16).^4; % range between 0 and 2.44
 %inputLevels = log((1:20/20)+2); 
 
 powerMeasures = {'amplitude', 'power', 'logpower'};

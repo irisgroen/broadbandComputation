@@ -18,24 +18,32 @@ psc = exp(-1/tau*(0:dt:.100))'; psc = psc / sum(psc);
 Q = conv2(spikeArrivals, psc, 'full')  ;
 Q = Q(1:size(spikeArrivals, 1), :);
 
+synapticWeights = randn(1,size(Q,2));
+synapticWeights = zscore(synapticWeights);
+Qw = bsxfun(@times, Q, synapticWeights);
+
+% Qwm = mean(Qw,2);
 % Alternatively, don't model the post-synaptic currents
 % Q = spikeArrivals;
 
 % The leakage current (I) is proportional to the accumulated charge
-I = zeros(size(spikeArrivals));
-I(1,:) = spikeArrivals(1,:);
+I = zeros(size(Q));
+%I(1,:) = spikeArrivals(1,:)+1;
 for ii = 1:length(t)-1
     
-    dIdt =  (-I(ii,:)/alpha +  Q(ii,:) );
+    dIdt =  (-I(ii,:)/alpha +  Qw(ii,:) );
     
     dI   = dIdt * dt;
     
     I(ii+1,:) = I(ii,:) + dI;
 end
 
+I = I / alpha;
+
 % Add amplifier output noise?
 if params.simulation.amplnoise > 0
-    noise = randn(size(I))*std(I(:))*params.simulation.amplnoise;
+    %noise = randn(size(I))*std(I(:))*params.simulation.amplnoise;
+    noise = randn(size(I))*params.simulation.amplnoise;
     signal = I + noise;
 else
     signal = I;
