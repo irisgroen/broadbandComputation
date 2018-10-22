@@ -48,8 +48,9 @@ switch params.plot.on
         legend({'Calibrated points', 'Extrapolated points'}, 'Location', 'NorthWest');
         xl = get(gca, 'XLim');
         yl = get(gca, 'YLim');
-        plot(xl, [0 0], 'k--', [0 0], yl, 'k--')
-        
+        zerolines = plot(xl, [0 0], 'k--', [0 0], yl, 'k--');
+        zerolines(1).Annotation.LegendInformation.IconDisplayStyle = 'off';     
+        zerolines(2).Annotation.LegendInformation.IconDisplayStyle = 'off';     
 end
 
 % Add calibration function handle to params

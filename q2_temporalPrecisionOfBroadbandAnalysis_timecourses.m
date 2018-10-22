@@ -11,10 +11,9 @@ params = [];
 % SIMULATION parameters
 
 % Set parameters for the noiseless, time-varying rate 
-params.simulation.resp        = 'sine';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
+params.simulation.resp        = 'bigsteps';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
 params.simulation.t           = (-1999.5:1999.5)';       % trial length: trials are -2 to 2 seconds, and later clipped to [0 1] to avoid edge artifacts
 params.simulation.srate       = 1000;                    % sample rate (Hz) 
-params.simulation.opt.f       = 10;                      % temporal frequency of response profile, applicable to sine wave or square wave
 
 % Set parameters for noisy samples
 params.simulation.n           = 100;                     % number of repeated trials
@@ -32,7 +31,7 @@ params.simulation.amplnoise   = 0.01;                    % amplifier noise: scal
 params.analysis.averagebandshow  = 'mean';             % geomean/mean
 params.analysis.averagebandswhen = 'after hilbert';    % 'before hilbert'/'after hilbert'
 params.analysis.whitenbands      = 'no';               % yes/no
-params.analysis.measure          = 'amplitude';        % amplitude/power/logpower/logpower normalized (dora)
+params.analysis.measure          = 'power';        % amplitude/power/logpower/
 
 % PLOTTING parameters
 
@@ -40,87 +39,6 @@ params.plot.on = 'no';                                  % suppress plotting of s
 params.plot.fontsz = 18;                                 % font size
 params.plot.lnwdth = 3;                                  % line width    
 
-%% SIMULATE & ANALYZE
-
-% COMPARE multiple temporal frequencies
-
-params.simulation.resp        = 'sine';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
-tempFrequencies               = [1:3:30];
-windowSizes                   = {1, 5, 10, 25, 50};
-
-bb1 = []; bb2 = [];
-stats1 = [];stats2 = [];
-for ii = 1:length(tempFrequencies)
-    params.simulation.opt.f = tempFrequencies(ii);      
-    [spikeRate, params] = generateNoiselessTimeCourse(params);
-    [spikeArrivals, params] = generateNoisySampledTimeCourses(spikeRate, params);
-    [simulatedSignal] = generateIntegratedTimeSeries(spikeArrivals, params);    
-    for jj = 1:length(windowSizes)
-        params.analysis.bands  = {[50 200], windowSizes{jj}};     % {[lower bound,  upper bound], window sz}   
-        params.analysis.measure = 'amplitude';
-        [bb1{ii,jj}.out, bb1{ii,jj}.params] = extractBroadband(simulatedSignal, params);
-        [stats1{ii,jj}] = evaluateBroadband(spikeRate, bb1{ii,jj}.out, params); 
-        params.analysis.measure = 'power';
-        [bb2{ii,jj}.out, bb2{ii,jj}.params] = extractBroadband(simulatedSignal, params);
-        [stats2{ii,jj}] = evaluateBroadband(spikeRate, bb2{ii,jj}.out, params);
-    end
-end
-
-%% PLOT
-bb = bb2;
-stats = stats2;
-
-rsqToPlot = [];
-labels = [];
-colors = jet(length(windowSizes));
-
-for ii = 1:length(tempFrequencies)
-    for jj = 1:length(windowSizes)
-        rsqToPlot(ii,jj) = stats{ii,jj}.regress.rsq;
-        labels{jj} = ['bandwidth = ' num2str(windowSizes{jj})];
-    end
-end
- 
-fH = figure;  set(fH, 'Color', 'w'); hold on;
-for jj = 1:length(windowSizes)
-    plot(tempFrequencies, rsqToPlot(:,jj), 'Color', colors(jj,:), 'Marker', 'o', 'LineWidth', params.plot.lnwdth);
-end
-set(gca, 'FontSize', params.plot.fontsz)
-
-xlabel('Input frequency (Hz)')
-ylabel('R2')
-legend(labels, 'Location', 'NorthEast');
-title('R2 with varying bandwidths for analysis');
-
-t = params.simulation.t/params.simulation.srate;
-% Clip time series to avoid edge artifacts
-idx = t > 0 & t < 1;
-
-amplToPlot = [];
-for ii = 1:length(tempFrequencies)
-    for jj = 1:length(windowSizes)
-        
-        % Average across trials
-        meanBroadband = mean(bb{ii,jj}.out,2);
-        % Subtract 'prestim' baseline
-        baseline = meanBroadband(t > -1 & t < 0);
-        meanBroadband = meanBroadband(idx) - mean(baseline);
-        % Average across time
-        amplToPlot(ii,jj) = mean(meanBroadband);
-    end
-end
- 
-fH = figure;  set(fH, 'Color', 'w'); hold on;
-for jj = 1:length(windowSizes)
-    plot(tempFrequencies, amplToPlot(:,jj), 'Color', colors(jj,:), 'Marker', 'o', 'LineWidth', params.plot.lnwdth);
-end
-set(gca, 'FontSize', params.plot.fontsz)
-
-xlabel('Input frequency (Hz)')
-ylabel('Broadband amplitude')
-legend(labels, 'Location', 'NorthEast');
-title(['mean broadband ' bb{1,1}.params.analysis.measure ' with varying bandwidths']);
-    
 %% SIMULATE
 
 [spikeRate, params] = generateNoiselessTimeCourse(params);

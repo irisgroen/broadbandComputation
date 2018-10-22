@@ -57,7 +57,7 @@ switch params.plot.on
         plot(t, signal(:,1), t, mean(signal,2), '--', 'LineWidth', params.plot.lnwdth);
         set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl)
 
-        legend('Single integrated time series', 'Mean integrated time series')
+        legend('Example of a single integrated time series', 'Mean across all integrated time series', 'Location', 'SouthEast')
         xlabel('Time (s)')
         ylabel('Simulated Signal')
 end
