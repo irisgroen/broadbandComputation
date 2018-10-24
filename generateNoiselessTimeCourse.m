@@ -5,7 +5,6 @@ if ~isfield(params.simulation, 'resp') || isempty(params.simulation.resp)
     params.simulation.resp = 'step';
 end
 
-
 t = params.simulation.t/params.simulation.srate; 
 spontaneousRate = (1/params.simulation.srate)*10;
 spikeRate = zeros(size(t))+spontaneousRate;
@@ -24,17 +23,17 @@ switch params.simulation.resp
         xl = [0 1];%[0.4 0.6];
         
     case 'smallsteps'
-        spikeRate(t>0.1)   = spikeRate(t>0.1) + 0.1; 
-        spikeRate(t>0.25)  = spikeRate(t>0.25)+ 0.2; 
+        spikeRate(t>0.1)   = spikeRate(t>0.1) + 0.05; 
+        spikeRate(t>0.25)  = spikeRate(t>0.25)+ 0.1; 
         spikeRate(t>0.5)   = spikeRate(t>0.5) + 0.3; 
-        spikeRate(t>0.75)  = spikeRate(t>0.75)+ 0.4; 
+        spikeRate(t>0.75)  = spikeRate(t>0.75)+ 0.5; 
         xl = [0 1];
         
 	case 'bigsteps'
-        spikeRate(t>0.1)   = 1;
-        spikeRate(t>0.25)  = 2;
-        spikeRate(t>.5)    = 3;
-        spikeRate(t>.75)   = 9;
+        spikeRate(t>0.1)   = spikeRate(t>0.1) + 1;
+        spikeRate(t>0.25)  = spikeRate(t>0.25)+ 2;
+        spikeRate(t>.5)    = spikeRate(t>0.5) + 3; 
+        spikeRate(t>.75)   = spikeRate(t>0.75)+ 9; 
         xl = [0 1];
         
     case 'bump'

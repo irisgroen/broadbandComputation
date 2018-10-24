@@ -3,7 +3,7 @@
 .DS_Store
 .DS_Store?
 ._*
-*.mat
+#*.mat
 *~
 *.m~
 figures/

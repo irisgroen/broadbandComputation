@@ -61,7 +61,7 @@ for ii = 1:length(tempFrequencies)
     end
 end
 
-%% PLOT
+%% PLOT RSQ
 
 rsqToPlot = [];
 labels = [];
@@ -85,11 +85,13 @@ ylabel('R2')
 legend(labels, 'Location', 'NorthEast');
 title('R2 with varying bandwidths for analysis');
 
+%% PLOT LEVEL
+
 t = params.simulation.t/params.simulation.srate;
 % Clip time series to avoid edge artifacts
 idx = t > 0 & t < 1;
 
-avToPlot = [];
+MnToPlot = [];
 for ii = 1:length(tempFrequencies)
     for jj = 1:length(windowSizes)
         
@@ -100,19 +102,34 @@ for ii = 1:length(tempFrequencies)
 
         meanBroadbandCalibrated = meanBroadbandCalibrated(idx);
         % Average across time
-        avToPlot(ii,jj) = mean(meanBroadbandCalibrated);
-        avToPlotSD(ii,jj) = std(meanBroadbandCalibrated,0,1);
+        MnToPlot(ii,jj) = mean(meanBroadbandCalibrated);
+        VarToPlot(ii,jj) = var(meanBroadbandCalibrated,0,1);
     end
 end
  
+% average 
 fH = figure;  set(fH, 'Color', 'w'); hold on;
+p = plot(tempFrequencies, ones(length(tempFrequencies),1)*mean(spikeRate(idx)),'k--', 'LineWidth', 2);
 for jj = 1:length(windowSizes)
-    plot(tempFrequencies, avToPlot(:,jj), 'Color', colors(jj,:), 'Marker', 'o', 'LineWidth', params.plot.lnwdth);
+    plot(tempFrequencies, MnToPlot(:,jj), 'Color', colors(jj,:), 'Marker', 'o', 'LineWidth', params.plot.lnwdth);
 end
 set(gca, 'FontSize', params.plot.fontsz)
 
 xlabel('Input frequency (Hz)')
 ylabel('Mean broadband power')
-legend(labels, 'Location', 'NorthEast');
+legend(['mean of spikeRate' labels], 'Location', 'NorthEast');
 title(['mean broadband ' bb{1,1}.params.analysis.measure ' with varying bandwidths']);
+    
+% variance
+fH = figure;  set(fH, 'Color', 'w'); hold on;
+p = plot(tempFrequencies, ones(length(tempFrequencies),1)*var(spikeRate(idx)),'k--', 'LineWidth', 2);
+for jj = 1:length(windowSizes)
+    plot(tempFrequencies, VarToPlot(:,jj), 'Color', colors(jj,:), 'Marker', 'o', 'LineWidth', params.plot.lnwdth);
+end
+set(gca, 'FontSize', params.plot.fontsz)
+
+xlabel('Input frequency (Hz)')
+ylabel('Variance in broadband power')
+legend(['variance of spikeRate' labels], 'Location', 'NorthEast');
+title(['variance in broadband ' bb{1,1}.params.analysis.measure ' with varying bandwidths']);
     
