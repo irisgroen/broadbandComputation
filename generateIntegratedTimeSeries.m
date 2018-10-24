@@ -14,16 +14,18 @@ dt = 1/params.simulation.srate;   % time step for simulations
 % quickly and falls slowly. Normalize it to sum of 1.
 psc = exp(-1/tau*(0:dt:.100))'; psc = psc / sum(psc);
 
-% Post-synaptic current (Q)
+% Generic post-synaptic current (Q)
 Q = conv2(spikeArrivals, psc, 'full')  ;
 Q = Q(1:size(spikeArrivals, 1), :);
 
+% Weight the synaptic currents differently across synapes
 synapticWeights = randn(1,size(Q,2));
 synapticWeights = zscore(synapticWeights);
 Qw = bsxfun(@times, Q, synapticWeights);
 
 % Qwm = mean(Qw,2);
 % Alternatively, don't model the post-synaptic currents
+
 % Q = spikeArrivals;
 
 % The leakage current (I) is proportional to the accumulated charge
