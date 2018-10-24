@@ -56,10 +56,10 @@ switch params.plot.on
     case 'yes'
         
         figure,
-        plot(t, signal(:,1), t, mean(signal,2), '--', 'LineWidth', params.plot.lnwdth);
+        plot(t, signal(:,1), t, sum(signal,2), 'r', 'LineWidth', params.plot.lnwdth);
         set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl)
 
-        legend('Example of a single integrated time series', 'Mean across all integrated time series', 'Location', 'SouthEast')
+        legend('Single integrated time series', 'Sum of integrated time series', 'Location', 'SouthEast')
         xlabel('Time (s)')
         ylabel('Simulated Signal')
 end
