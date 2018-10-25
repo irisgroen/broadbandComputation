@@ -44,7 +44,7 @@ params.plot.lnwdth = 3;                                  % line width
 % COMPARE multiple temporal frequencies
 
 params.simulation.resp        = 'sine';               
-tempFrequencies               = [1:3:30];
+tempFrequencies               = [2:4:30];
 windowSizes                   = {1, 5, 10, 25, 50};
 
 bb = [];
@@ -85,13 +85,17 @@ ylabel('R2')
 legend(labels, 'Location', 'NorthEast');
 title('R2 with varying bandwidths for analysis');
 
-%% PLOT LEVEL
+%% PLOT AMPLITUDE
 
 t = params.simulation.t/params.simulation.srate;
 % Clip time series to avoid edge artifacts
 idx = t > 0 & t < 1;
+f = 0:length(find(idx))-1; 
 
-MnToPlot = [];
+MnToPlot = []; 
+VarToPlot = [];
+AmpToPlot = [];
+
 for ii = 1:length(tempFrequencies)
     for jj = 1:length(windowSizes)
         
@@ -101,12 +105,37 @@ for ii = 1:length(tempFrequencies)
         meanBroadbandCalibrated = bb{ii,jj}.params.analysis.calibrate(meanBroadband);
 
         meanBroadbandCalibrated = meanBroadbandCalibrated(idx);
+        
         % Average across time
         MnToPlot(ii,jj) = mean(meanBroadbandCalibrated);
         VarToPlot(ii,jj) = var(meanBroadbandCalibrated,0,1);
+        
+        % Take spectrum, calculate amplitude
+        spectrum = abs(fft(meanBroadbandCalibrated));
+        AmpToPlot(ii,jj) = spectrum(f == tempFrequencies(ii));
     end
 end
- 
+AmpToPlot = AmpToPlot/(length(f)/2); % scale to amplitude in signal
+
+% amplitude
+fH = figure;  set(fH, 'Color', 'w'); hold on;
+p = plot(tempFrequencies, ones(length(tempFrequencies),1),'k--', 'LineWidth', 2);
+for jj = 1:length(windowSizes)
+    plot(tempFrequencies, AmpToPlot(:,jj), 'Color', colors(jj,:), 'Marker', 'o', 'LineWidth', params.plot.lnwdth);
+end
+set(gca, 'FontSize', params.plot.fontsz)
+
+xlabel('Input frequency (Hz)')
+ylabel('Amplitude')
+legend(['spikeRate amplitude' labels], 'Location', 'NorthEast');
+title(['amplitude of broadband' bb{1,1}.params.analysis.measure ' with varying bandwidths']);
+  
+
+% % amplitude
+% f = 0:length(spikeRate(idx))-1; 
+% figure, plot(f, abs(fft(spikeRate(idx))), 'LineWidth', params.plot.lnwdth); 
+% figure, plot(f, abs(fft(meanBroadbandCalibrated)), 'LineWidth', params.plot.lnwdth); 
+
 % average 
 fH = figure;  set(fH, 'Color', 'w'); hold on;
 p = plot(tempFrequencies, ones(length(tempFrequencies),1)*mean(spikeRate(idx)),'k--', 'LineWidth', 2);
@@ -132,4 +161,5 @@ xlabel('Input frequency (Hz)')
 ylabel('Variance in broadband power')
 legend(['variance of spikeRate' labels], 'Location', 'NorthEast');
 title(['variance in broadband ' bb{1,1}.params.analysis.measure ' with varying bandwidths']);
-    
+   
+

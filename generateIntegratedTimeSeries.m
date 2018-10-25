@@ -55,6 +55,7 @@ end
 switch params.plot.on
     case 'yes'
         
+        % plot single and sum of time series
         figure,
         plot(t, signal(:,1), t, sum(signal,2), 'r', 'LineWidth', params.plot.lnwdth);
         set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl)
@@ -62,6 +63,29 @@ switch params.plot.on
         legend('Single integrated time series', 'Sum of integrated time series', 'Location', 'SouthEast')
         xlabel('Time (s)')
         ylabel('Simulated Signal')
+        
+        Im = mean(signal,2);
+        
+        % plot mean 
+        baseline_idx = t>0 & t <= 0.5; 
+        stimulus_idx = t>0.5 & t <= 1; 
+        figure; hold on; 
+        plot(t(baseline_idx), Im(baseline_idx), t(stimulus_idx), Im(stimulus_idx), 'LineWidth', params.plot.lnwdth)
+        set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl)
+        legend('Baseline', 'Stimulus', 'Location', 'SouthEast')
+        xlabel('Time (s)')
+        ylabel('Simulated Signal')
+        
+        % plot frequency spectra for baseline and for 
+        baseline = Im(baseline_idx);
+        stimulus = Im(stimulus_idx);
+        f = 0:length(baseline)-1; figure, plot(f, abs(fft(baseline)), f, abs(fft(stimulus)), 'LineWidth', params.plot.lnwdth); 
+        xlim([0 length(baseline)/2]); 
+        set(gca, 'XScale', 'log', 'YScale', 'log')
+        set(gca, 'FontSize', params.plot.fontsz)
+        legend('Baseline', 'Stimulus', 'Location', 'SouthEast')
+        xlabel('Frequency(Hz)')
+        ylabel('Power')
 end
 
 
