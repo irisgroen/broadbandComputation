@@ -46,6 +46,7 @@ params.plot.lnwdth = 3;  % line width
 
 % COMPARE RANGES
 lowerBounds = [20 40 60 80 100]; % will add 100 for upper bound
+noiseLevels = [0 0.01 0.02 0.03 0.04 0.05];
 
 bb = [];
 stats = [];
@@ -61,7 +62,8 @@ for ii = 1:length(noiseLevels)
     end
 end
 
-%% PLOT
+%% PLOT RSQ
+colors = parula(length(noiseLevels));
 
 rsqToPlot = [];
 labels = [];
@@ -88,6 +90,42 @@ ylabel('R2')
 legend(labels);    
 title('Amplifier noise with varying frequency range for analysis');
 set(gca, 'FontSize', params.plot.fontsz)
+
+%% PLOT TIMECOURSE
+fH = figure;  set(fH, 'Color', 'w'); hold on;
+
+t = params.simulation.t/params.simulation.srate;
+% Clip time series to avoid edge artifacts
+idx = t > 0 & t < 1;
+
+% Plot spikeRate
+spikeRateToPlot = spikeRate(idx); %/ norm(spikeRate(idx));
+plot(t(idx), spikeRateToPlot, 'k:', 'LineWidth', params.plot.lnwdth)
+
+jj = 1;
+
+% Plot broadband
+for ii = 1:length(noiseLevels)
+    
+    meanBroadband = mean(bb{ii,jj}.out,2);
+    
+    % % Subtract 'prestim' baseline
+    %baseline = meanBroadband(t > -1 & t < 0);
+    %meanBroadband = meanBroadband(idx) - mean(baseline);
+
+    % Scale for plotting
+    %mnToPlot = meanBroadband / norm(meanBroadband);
+    
+    meanBroadbandCalibrated = bb{ii,jj}.params.analysis.calibrate(meanBroadband);
+    mnToPlot = meanBroadbandCalibrated(idx);
+        
+    plot(t(idx), mnToPlot, 'Color', colors(ii,:), 'LineWidth', params.plot.lnwdth)
+    set(gca, 'FontSize', params.plot.fontsz, 'XLim',  [0 1])
+    xlabel('Time (s)')
+    ylabel('Broadband power')
+end
+legend(['idealized spike rate' labels], 'Location', 'NorthWest');
+title(['increasing amplifier noise (freq range = ' xnames{jj} ')']);
 
 %% OLD 
 % %% SIMULATE % ANALYZE
