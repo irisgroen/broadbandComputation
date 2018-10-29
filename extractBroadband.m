@@ -100,27 +100,26 @@ params.analysis.methodstr = methodstr;
 switch params.plot.on
     case 'yes'
         t = params.simulation.t/params.simulation.srate; 
-        %envelope = bb(bp);
         meanbp = squeeze(mean(bp,2));
         envelope = bb(meanbp);
-        bandNumbers = [1 round(size(bands,1)/2) size(bands,1)];
-        plotNames = {'lowest band', 'middle band', 'highest band'};
+        bandNumbers = [1  2 round(size(bands,1)/2) size(bands,1)];
+        plotNames = {'lowest band', 'second band', 'middle band', 'highest band'};
         for ii = 1:length(bandNumbers)
             fH = figure; set(fH, 'Color', 'w'); hold on
-            %plot(t,bp(:,3,bandNumbers(ii)), 'b');
-            %plot(t,envelope(:,3,bandNumbers(ii)), 'k','LineWidth', 2)
             plot(t,meanbp(:,bandNumbers(ii)), 'b');
-            plot(t,envelope(:,bandNumbers(ii)), 'k','LineWidth', 2)
+            plot(t,envelope(:,bandNumbers(ii)), 'k','LineWidth', params.plot.lnwdth)
             set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl);
             title('lowest band');
             legend({'Band-pass filtered time series', 'Hilbert envelope'},'Location', 'NorthWest')
             xlabel('Time (s)')
             ylabel('Amplitude')
+            set(gca, 'YLim', [-max(abs(meanbp(:))) max(abs(meanbp(:)))]);
             title([plotNames{ii} ' (' num2str(bands(bandNumbers(ii),1)) '-' num2str(bands(bandNumbers(ii),2)) 'Hz)']);
         end
         fH = figure; set(fH, 'Color', 'w'); hold on
-        plot(t,mean(envelope,2));
+        plot(t,mean(envelope,2), 'LineWidth', params.plot.lnwdth);
         set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl);
+        set(gca, 'YLim', [-max(abs(meanbp(:))) max(abs(meanbp(:)))]);
 end
 return
 

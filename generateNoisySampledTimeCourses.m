@@ -14,8 +14,9 @@ spikeArrivals = poissrnd(repmat(spikeRate, [1 params.simulation.n]));
 
 switch params.plot.on
     case 'yes'
-        figure,
-        plot(t, spikeArrivals(:,1), t, mean(spikeArrivals,2), 'LineWidth', params.plot.lnwdth);
+        figure, hold on,
+        plot(t, spikeArrivals(:,1), 'c', 'LineWidth', params.plot.lnwdth);
+        plot(t, mean(spikeArrivals,2), 'b', 'LineWidth', params.plot.lnwdth);
         set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl)
 
         legend('Single noisy time series', 'Mean noisy time series')

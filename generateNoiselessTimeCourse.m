@@ -11,7 +11,9 @@ spikeRate = zeros(size(t))+spontaneousRate;
 
 switch params.simulation.resp
     case 'boxcar'
-        spikeRate(t>.2 & t < .7) = 1;
+        stimulus_idx = t>.3 & t <= .8; 
+        baseline_idx = t>0 & t <=.3 | t>.8 & t <=1; 
+        spikeRate(stimulus_idx) = 1;
         xl = [0 1];
         
     case 'pulse'
@@ -19,7 +21,9 @@ switch params.simulation.resp
         xl = [.4 0.6];
         
     case 'step'
-        spikeRate(t>0.5) = spikeRate(t>0.5) + 1;
+        stimulus_idx = t>0.5 & t <= 1; 
+        baseline_idx = t>0 & t <= 0.5; 
+        spikeRate(stimulus_idx) = spikeRate(stimulus_idx) + 1;
         xl = [0 1];%[0.4 0.6];
         
     case 'smallsteps'
@@ -83,7 +87,7 @@ switch params.plot.on
     case 'yes'
         % Plot the noiseless time series
         figure();
-        plot(t, spikeRate, 'LineWidth', params.plot.lnwdth);
+        plot(t, spikeRate, 'b', 'LineWidth', params.plot.lnwdth);
         title('Noiseless time series')
         set(gca, 'XLim', xl, 'FontSize', params.plot.fontsz)
         xlabel('Time (s)')
@@ -91,5 +95,6 @@ switch params.plot.on
 end
 
 params.plot.xl = xl;
-
+if exist('stimulus_idx','var');params.plot.stimulus_idx = stimulus_idx;end
+if exist('baseline_idx','var');params.plot.baseline_idx = baseline_idx;end
 end

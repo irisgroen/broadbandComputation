@@ -43,9 +43,8 @@ end
 I = I / alpha;
 
 % Add amplifier output noise?
-if params.simulation.amplnoise > 0
-    %noise = randn(size(I))*std(I(:))*params.simulation.amplnoise;
-    noise = randn(size(I))*params.simulation.amplnoise;
+if params.simulation.addnoise > 0
+    noise = randn(size(I))*params.simulation.addnoise;
     signal = I + noise;
 else
     signal = I;
@@ -57,37 +56,40 @@ switch params.plot.on
         
         % plot single and sum of time series
         fH = figure;  set(fH, 'Color', 'w');
-        plot(t, signal(:,1), t, sum(signal,2), 'r', 'LineWidth', params.plot.lnwdth);
+        plot(t, signal(:,1), t, mean(signal,2), 'r', 'LineWidth', params.plot.lnwdth);
         set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl)
 
-        legend('Single integrated time series', 'Sum of integrated time series', 'Location', 'NorthWest')
+        legend('Single time series', 'Mean time series', 'Location', 'NorthWest')
         xlabel('Time (s)')
         ylabel('Simulated Signal')
         
         Im = mean(signal,2);
         
-        % plot mean w different colors for baseline and stimulus
-        baseline_idx = t>0 & t <= 0.5; 
-        stimulus_idx = t>0.5 & t <= 1; 
-        fH = figure;  set(fH, 'Color', 'w');
-        plot(t(baseline_idx), Im(baseline_idx), t(stimulus_idx), Im(stimulus_idx), 'LineWidth', params.plot.lnwdth)
-        set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl)
-        legend('Baseline', 'Stimulus', 'Location', 'NorthWest')
-        xlabel('Time (s)')
-        ylabel('Simulated Signal')
-        
-        % plot frequency spectra for baseline and for stimulus
-        fH = figure;  set(fH, 'Color', 'w');
-        baseline = Im(baseline_idx);
-        stimulus = Im(stimulus_idx);
-        f = 0:length(baseline)-1; 
-        plot(f, abs(fft(baseline)), f, abs(fft(stimulus)), 'LineWidth', params.plot.lnwdth); 
-        xlim([0 length(baseline)/2]); 
-        set(gca, 'XScale', 'log', 'YScale', 'log')
-        set(gca, 'FontSize', params.plot.fontsz)
-        legend('Baseline', 'Stimulus', 'Location', 'NorthWest')
-        xlabel('Frequency(Hz)')
-        ylabel('Power')
+        if isfield(params.plot, 'stimulus_idx')
+            % plot mean w different colors for baseline and stimulus
+            fH = figure;  set(fH, 'Color', 'w'); hold on
+            baselineToPlot = nan(size(Im));baselineToPlot(params.plot.baseline_idx) = Im(params.plot.baseline_idx);
+            stimulusToPlot = nan(size(Im));stimulusToPlot(params.plot.stimulus_idx) = Im(params.plot.stimulus_idx);
+            plot(t, baselineToPlot, t, stimulusToPlot, 'LineWidth', params.plot.lnwdth);
+            set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl)
+            legend('Baseline', 'Stimulus', 'Location', 'NorthWest')
+            xlabel('Time (s)')
+            ylabel('Simulated Signal')
+
+            % plot frequency spectra for baseline and for stimulus
+            fH = figure;  set(fH, 'Color', 'w');
+            baseline = Im(params.plot.baseline_idx);
+            stimulus = Im(params.plot.stimulus_idx);
+            f = 0:length(baseline)-1; 
+            plot(f, abs(fft(baseline)), f, abs(fft(stimulus)), 'LineWidth', params.plot.lnwdth); 
+            xlim([0 length(baseline)/2]); 
+            %set(gca, 'XScale', 'log', 'YScale', 'log')
+            set(gca, 'XLim', [0 200], 'YScale', 'log')
+            set(gca, 'FontSize', params.plot.fontsz)
+            legend('Baseline', 'Stimulus', 'Location', 'NorthWest')
+            xlabel('Frequency(Hz)')
+            ylabel('Power')
+        end
 end
 
 
