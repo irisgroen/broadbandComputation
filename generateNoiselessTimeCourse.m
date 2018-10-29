@@ -11,8 +11,8 @@ spikeRate = zeros(size(t))+spontaneousRate;
 
 switch params.simulation.resp
     case 'boxcar'
-        stimulus_idx = t>.3 & t <= .8; 
-        baseline_idx = t>0 & t <=.3 | t>.8 & t <=1; 
+        stimulus_idx = t>.4 & t <= .8; 
+        baseline_idx = t>0 & t <=.4; 
         spikeRate(stimulus_idx) = 1;
         xl = [0 1];
         
