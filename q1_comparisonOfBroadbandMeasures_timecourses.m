@@ -31,7 +31,7 @@ params.simulation.amplnoise   = 0;% %0.01;                    % amplifier noise:
 % ANALYSIS parameters
 
 params.analysis.bands            = {[50 200], 10};     % {[lower bound,  upper bound], window sz}
-params.analysis.averagebandshow  = 'mean';             % geomean/mean
+params.analysis.averagebandshow  = 'geomean';             % geomean/mean
 params.analysis.averagebandswhen = 'after hilbert';    % 'before hilbert'/'after hilbert'
 params.analysis.whitenbands      = 'no';               % yes/no
 
@@ -51,10 +51,17 @@ params.plot.lnwdth = 3;                                 % line width
 
 powerMeasures = {'amplitude', 'power', 'logpower'};
 colors = copper(length(powerMeasures));
+colors(1,:) = [1 0 0];
 
 bb = []; stats = [];
 for ii = 1:length(powerMeasures)
-    params.analysis.measure = powerMeasures{ii};          
+    params.analysis.measure = powerMeasures{ii};
+    switch powerMeasures{ii}
+        case 'logpower'
+            params.analysis.averagebandshow  = 'mean';  
+        otherwise
+            params.analysis.averagebandshow  = 'geomean';  
+    end
     [bb{ii}.out, params] = extractBroadband(simulatedSignal, params);
     [stats{ii}, bb{ii}.params] = evaluateBroadband(spikeRate, bb{ii}.out,params); 
 end
@@ -71,7 +78,7 @@ idx = t > 0 & t < 1;
 
 % Plot spikeRate
 %spikeRateToPlot = spikeRate(idx) / norm(spikeRate(idx));
-plot(t(idx), spikeRate(idx), 'k:', 'LineWidth', bb{1}.params.plot.lnwdth)
+plot(t(idx), spikeRate(idx), 'k', 'LineWidth', bb{1}.params.plot.lnwdth)
 labels{1} = 'idealized spike rate';
 
 for ii = 1:length(powerMeasures)

@@ -32,7 +32,7 @@ params.simulation.amplnoise   = 0;%0.001;%0.01;               % amplifier noise:
 
 % ANALYSIS parameters
 
-params.analysis.bands            = {[50 170], 20};     % {[lower bound,  upper bound], window sz}
+params.analysis.bands            = {[50 200], 20};     % {[lower bound,  upper bound], window sz}
 params.analysis.averagebandshow  = 'mean';             % geomean/mean
 params.analysis.averagebandswhen = 'after hilbert';    % 'before hilbert'/'after hilbert'
 params.analysis.whitenbands      = 'no';               % yes/no
@@ -122,6 +122,7 @@ end
 
 fH = figure;  set(fH, 'Color', 'w'); hold on;
 colors = copper(length(powerMeasures));
+colors(1,:) = [1 0 0];
 
 for jj = 1:length(powerMeasures)
     plot(inputLevels,responseLevels(:,jj), ...

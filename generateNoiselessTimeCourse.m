@@ -26,7 +26,7 @@ switch params.simulation.resp
         spikeRate(t>0.1)   = spikeRate(t>0.1) + 0.05; 
         spikeRate(t>0.25)  = spikeRate(t>0.25)+ 0.1; 
         spikeRate(t>0.5)   = spikeRate(t>0.5) + 0.3; 
-        spikeRate(t>0.75)  = spikeRate(t>0.75)+ 0.5; 
+        spikeRate(t>0.75)  = spikeRate(t>0.75)+ 0.55; 
         xl = [0 1];
         
 	case 'bigsteps'
