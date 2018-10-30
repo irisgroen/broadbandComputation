@@ -32,10 +32,11 @@ for ii = 1:size(bands,1)
 end
 
 % if only one time series, then eliminate singleton dimension
-if size(bp, 2) == 1, bp = squeeze(bp); end
+%if size(bp, 2) == 1, bp = squeeze(bp); end
 
 % which dimension represents the multiple bands?
-banddim = length(size(bp));
+%banddim = length(size(bp));
+banddim = size(bp,3);
 
 %%%% FUNCTIONS %%%%
 
@@ -102,7 +103,11 @@ switch params.plot.on
         t = params.simulation.t/params.simulation.srate; 
         meanbp = squeeze(mean(bp,2));
         envelope = bb(meanbp);
-        bandNumbers = [1  2 round(size(bands,1)/2) size(bands,1)];
+        if size(bp,3) > 1
+            bandNumbers = [1  2 round(size(bands,1)/2) size(bands,1)];
+        else
+            bandNumbers = 1;
+        end
         plotNames = {'lowest band', 'second band', 'middle band', 'highest band'};
         for ii = 1:length(bandNumbers)
             fH = figure; set(fH, 'Color', 'w'); hold on

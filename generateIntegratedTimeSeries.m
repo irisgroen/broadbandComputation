@@ -65,11 +65,11 @@ switch params.plot.on
         
         Im = mean(signal,2);
         
-        if isfield(params.plot, 'stimulus_idx')
+        if isfield(params.simulation, 'stimulus_idx')
             % plot mean w different colors for baseline and stimulus
             fH = figure;  set(fH, 'Color', 'w'); hold on
-            baselineToPlot = nan(size(Im));baselineToPlot(params.plot.baseline_idx) = Im(params.plot.baseline_idx);
-            stimulusToPlot = nan(size(Im));stimulusToPlot(params.plot.stimulus_idx) = Im(params.plot.stimulus_idx);
+            baselineToPlot = nan(size(Im));baselineToPlot(params.simulation.baseline_idx) = Im(params.simulation.baseline_idx);
+            stimulusToPlot = nan(size(Im));stimulusToPlot(params.simulation.stimulus_idx) = Im(params.simulation.stimulus_idx);
             plot(t, baselineToPlot, t, stimulusToPlot, 'LineWidth', params.plot.lnwdth);
             set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl)
             legend('Baseline', 'Stimulus', 'Location', 'NorthWest')
@@ -78,8 +78,8 @@ switch params.plot.on
 
             % plot frequency spectra for baseline and for stimulus
             fH = figure;  set(fH, 'Color', 'w');
-            baseline = Im(params.plot.baseline_idx);
-            stimulus = Im(params.plot.stimulus_idx);
+            baseline = Im(params.simulation.baseline_idx);
+            stimulus = Im(params.simulation.stimulus_idx);
             f = 0:length(baseline)-1; 
             plot(f, abs(fft(baseline)), f, abs(fft(stimulus)), 'LineWidth', params.plot.lnwdth); 
             xlim([0 length(baseline)/2]); 

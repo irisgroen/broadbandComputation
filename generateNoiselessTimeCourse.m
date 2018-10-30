@@ -95,6 +95,6 @@ switch params.plot.on
 end
 
 params.plot.xl = xl;
-if exist('stimulus_idx','var');params.plot.stimulus_idx = stimulus_idx;end
-if exist('baseline_idx','var');params.plot.baseline_idx = baseline_idx;end
+if exist('stimulus_idx','var');params.simulation.stimulus_idx = stimulus_idx;end
+if exist('baseline_idx','var');params.simulation.baseline_idx = baseline_idx;end
 end
