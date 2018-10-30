@@ -14,7 +14,7 @@ meanBroadband = mean(estimatedBroadband,2);
 
 % Scale broadband to calibrated response using calibrate function
 meanBroadbandCalibrated = params.analysis.calibrate(meanBroadband);
-
+%meanBroadbandCalibrated = meanBroadband;
 % Clip time series to avoid edge artifacts
 idx = t > -0.5 & t < 1;
 

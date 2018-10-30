@@ -19,21 +19,17 @@ calibparams.plot.on                = 'no';
 
 t = calibparams.simulation.t/calibparams.simulation.srate; 
 
-if isfield(params.simulation, 'stimulus_idx')
-    stim_idx = params.simulation.stimulus_idx;
-    base_idx = params.simulation.baseline_idx;
-else 
-    stim_idx = t > 0.1 & t < 0.4;
-    base_idx = t > 0.6 & t < 0.9;
-end
+% for step, the spike rate changes at t = 0.5
+base_idx = t > 0.1 & t < 0.4;
+stim_idx = t > 0.6 & t < 0.9;
 
 % Take the mean during level 0
-y(1) = mean(mean(estimatedBroadband(stim_idx,:)));
-x(1) = mean(spikeRate(stim_idx));
+y(1) = mean(mean(estimatedBroadband(base_idx,:)));
+x(1) = mean(spikeRate(base_idx));
 
 % Take the mean during level 1
-y(2) = mean(mean(estimatedBroadband(base_idx,:)));
-x(2) = mean(spikeRate(base_idx));
+y(2) = mean(mean(estimatedBroadband(stim_idx,:)));
+x(2) = mean(spikeRate(stim_idx));
 
 % Derive the slope & intercept
 slope = diff(y)/diff(x);

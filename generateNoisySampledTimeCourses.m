@@ -10,18 +10,21 @@ else
     rng(params.simulation.seed,'twister'); 
 end
 
-spikeArrivals = poissrnd(repmat(spikeRate, [1 params.simulation.n]));
+
+spikeArrivals = poissrnd(repmat(spikeRate, [1 params.simulation.nn params.simulation.ntrials]));
 
 switch params.plot.on
     case 'yes'
         figure, hold on,
-        plot(t, spikeArrivals(:,1), 'c', 'LineWidth', params.plot.lnwdth);
-        plot(t, mean(spikeArrivals,2), 'b', 'LineWidth', params.plot.lnwdth);
+        plot(t, spikeArrivals(:,1,1), 'c', 'LineWidth', params.plot.lnwdth);
+        plot(t, mean(spikeArrivals(:,:,1),2), 'b', 'LineWidth', params.plot.lnwdth);
+        plot(t, mean(mean(spikeArrivals,2),3), 'r', 'LineWidth', params.plot.lnwdth);
         set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl)
 
-        legend('Single noisy time series', 'Mean noisy time series')
+        legend('Single neuron, single trial', 'Single trial', 'Mean across trials')
         xlabel('Time (s)')
         ylabel('Spike Arrivals')
+        title('Spiking time series');
 end
 
 end

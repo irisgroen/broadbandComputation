@@ -36,7 +36,7 @@ end
 
 % which dimension represents the multiple bands?
 %banddim = length(size(bp));
-banddim = size(bp,3);
+banddim = 3;
 
 %%%% FUNCTIONS %%%%
 
@@ -101,30 +101,45 @@ params.analysis.methodstr = methodstr;
 switch params.plot.on
     case 'yes'
         t = params.simulation.t/params.simulation.srate; 
-        meanbp = squeeze(mean(bp,2));
-        envelope = bb(meanbp);
+        
+        % plot individual band-pass filtered time series + envelopes
+        singletrial_bp = squeeze(bp(:,1,:));
+        singletrial_envelope = bb(singletrial_bp);
         if size(bp,3) > 1
             bandNumbers = [1  2 round(size(bands,1)/2) size(bands,1)];
         else
             bandNumbers = 1;
         end
-        plotNames = {'lowest band', 'second band', 'middle band', 'highest band'};
+        plotNames = {'Lowest band', 'Second band', 'Middle band', 'Highest band'};
         for ii = 1:length(bandNumbers)
             fH = figure; set(fH, 'Color', 'w'); hold on
-            plot(t,meanbp(:,bandNumbers(ii)), 'b');
-            plot(t,envelope(:,bandNumbers(ii)), 'k','LineWidth', params.plot.lnwdth)
+            bpToPlot = singletrial_bp(:,bandNumbers(ii))/max(abs(singletrial_bp(:,bandNumbers(ii))));
+            plot(t,bpToPlot, 'b');
+            envToPlot = singletrial_envelope(:,bandNumbers(ii))/max(abs(singletrial_envelope(:,bandNumbers(ii))));
+            plot(t,envToPlot, 'k','LineWidth', params.plot.lnwdth)
             set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl);
-            title('lowest band');
+            title('Lowest band');
             legend({'Band-pass filtered time series', 'Hilbert envelope'},'Location', 'NorthWest')
             xlabel('Time (s)')
             ylabel('Amplitude')
-            set(gca, 'YLim', [-max(abs(meanbp(:))) max(abs(meanbp(:)))]);
+            %set(gca, 'YLim', [-max(abs(singletrial_bp(:))) max(abs(singletrial_bp(:)))]);
+            set(gca, 'YLim', [-1 1]);
             title([plotNames{ii} ' (' num2str(bands(bandNumbers(ii),1)) '-' num2str(bands(bandNumbers(ii),2)) 'Hz)']);
         end
+        
+        % plot the mean envelope across bands: single-trial 
         fH = figure; set(fH, 'Color', 'w'); hold on
-        plot(t,mean(envelope,2), 'LineWidth', params.plot.lnwdth);
+        plot(t,mn(singletrial_envelope,2), 'LineWidth', params.plot.lnwdth);
+        % compare with mean across trials
+        test = bb(bp);
+        testmn = mn(test,3);
+        plot(t,mean(testmn,2), 'LineWidth', params.plot.lnwdth);
         set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl);
-        set(gca, 'YLim', [-max(abs(meanbp(:))) max(abs(meanbp(:)))]);
+        set(gca, 'YLim', [0 max(abs(testmn(:)))]);
+        title('Envelope averages across bands');
+        legend({'Single-trial', 'Mean across trials'},'Location', 'NorthWest')
+        xlabel('Time (s)')
+        ylabel('Amplitude')
 end
 return
 

@@ -15,8 +15,10 @@ dt = 1/params.simulation.srate;   % time step for simulations
 psc = exp(-1/tau*(0:dt:.100))'; psc = psc / sum(psc);
 
 % Generic post-synaptic current (Q)
-Q = conv2(spikeArrivals, psc, 'full')  ;
-Q = Q(1:size(spikeArrivals, 1), :);
+for ii = 1:params.simulation.ntrials
+    Qconv = conv2(spikeArrivals(:,:,ii), psc, 'full')  ;
+    Q(:,:,ii) = Qconv(1:size(spikeArrivals(:,:,ii), 1), :);
+end
 
 % Weight the synaptic currents differently across synapes
 synapticWeights = randn(1,size(Q,2));
@@ -38,6 +40,7 @@ for ii = 1:length(t)-1
     dI   = dIdt * dt;
     
     I(ii+1,:) = I(ii,:) + dI;
+
 end
 
 I = I / alpha;
@@ -45,32 +48,34 @@ I = I / alpha;
 % Add amplifier output noise?
 if params.simulation.addnoise > 0
     noise = randn(size(I))*params.simulation.addnoise;
-    signal = I + noise;
-else
-    signal = I;
+    I = I + noise;
 end
+
+% Average across neurons
+signal = squeeze(mean(I,2));
 
 % Plot?
 switch params.plot.on
     case 'yes'
         
+        signalMean = mean(signal,2);
+
         % plot single and sum of time series
         fH = figure;  set(fH, 'Color', 'w');
-        plot(t, signal(:,1), t, mean(signal,2), 'r', 'LineWidth', params.plot.lnwdth);
+        plot(t, signal(:,1), t, signalMean, 'r', 'LineWidth', params.plot.lnwdth);
         set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl)
 
-        legend('Single time series', 'Mean time series', 'Location', 'NorthWest')
+        legend('Single trial', 'Mean across trials', 'Location', 'NorthWest')
         xlabel('Time (s)')
         ylabel('Simulated Signal')
         
-        Im = mean(signal,2);
-        
-        if isfield(params.simulation, 'stimulus_idx')
+        if isfield(params.plot, 'stimulus_idx')
             % plot mean w different colors for baseline and stimulus
             fH = figure;  set(fH, 'Color', 'w'); hold on
-            baselineToPlot = nan(size(Im));baselineToPlot(params.simulation.baseline_idx) = Im(params.simulation.baseline_idx);
-            stimulusToPlot = nan(size(Im));stimulusToPlot(params.simulation.stimulus_idx) = Im(params.simulation.stimulus_idx);
-            plot(t, baselineToPlot, t, stimulusToPlot, 'LineWidth', params.plot.lnwdth);
+            %stimulusToPlot = nan(size(Im));
+            %stimulusToPlot(params.plot.stimulus_idx) = Im(params.plot.stimulus_idx);
+            plot(t,signalMean, 'k', 'LineWidth', params.plot.lnwdth);
+            plot(t(params.plot.stimulus_idx), signalMean(params.plot.stimulus_idx), 'r','LineWidth', params.plot.lnwdth); 
             set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl)
             legend('Baseline', 'Stimulus', 'Location', 'NorthWest')
             xlabel('Time (s)')
@@ -78,10 +83,10 @@ switch params.plot.on
 
             % plot frequency spectra for baseline and for stimulus
             fH = figure;  set(fH, 'Color', 'w');
-            baseline = Im(params.simulation.baseline_idx);
-            stimulus = Im(params.simulation.stimulus_idx);
+            baseline = signalMean(params.plot.baseline_idx);
+            stimulus = signalMean(params.plot.stimulus_idx);
             f = 0:length(baseline)-1; 
-            plot(f, abs(fft(baseline)), f, abs(fft(stimulus)), 'LineWidth', params.plot.lnwdth); 
+            plot(f, abs(fft(baseline)),'k', f, abs(fft(stimulus)), 'r', 'LineWidth', params.plot.lnwdth); 
             xlim([0 length(baseline)/2]); 
             %set(gca, 'XScale', 'log', 'YScale', 'log')
             set(gca, 'XLim', [0 200], 'YScale', 'log')
