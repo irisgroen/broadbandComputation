@@ -6,7 +6,7 @@
 % Approach: vary params.method
 
 %% Set parameters 
-
+clear all;
 params = [];
 
 % SIMULATION parameters
@@ -18,20 +18,20 @@ params.simulation.srate       = 1000;                    % sample rate (Hz)
 params.simulation.opt.f       = 10;                      % temporal frequency of response profile, applicable to sine wave or square wave
 
 % Set parameters for noisy samples
-params.simulation.n           = 100;                     % number of repeated trials
-params.simulation.seed        = 1;                       % use same number to compare simulations for same random generator of samples; leave empty to use new generator every time
+params.simulation.nn          = 100;                     % number of neurons
+params.simulation.ntrials     = 12;                      % number of repeated trials
+params.simulation.seed        = 0;                       % use same number to compare simulations for same random generator of samples; leave empty to use new generator every time
 
 % Set parameters for leaky integration
 params.simulation.alpha       = 0.1;                     % time constant for dendritic leakage
 params.simulation.tau         = 0.0023;                  % time constant for post-synaptic current
 
 % Set parameters for noise
-params.simulation.amplnoise   = 0;% %0.01;                    % amplifier noise: scale factor of signal variance (if 0, no noise is added)
+params.simulation.addnoise   = 0;%0.01;                   % additive noise (if 0, no noise is added)
 
 % ANALYSIS parameters
 
-params.analysis.bands            = {[50 200], 10};     % {[lower bound,  upper bound], window sz}
-params.analysis.averagebandshow  = 'geomean';             % geomean/mean
+params.analysis.bands            = {[40 200], 20};     % {[lower bound,  upper bound], window sz}
 params.analysis.averagebandswhen = 'after hilbert';    % 'before hilbert'/'after hilbert'
 params.analysis.whitenbands      = 'no';               % yes/no
 

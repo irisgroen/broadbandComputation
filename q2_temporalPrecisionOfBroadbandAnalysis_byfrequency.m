@@ -16,7 +16,8 @@ params.simulation.t           = (-1999.5:1999.5)';       % trial length: trials 
 params.simulation.srate       = 1000;                    % sample rate (Hz) 
 
 % Set parameters for noisy samples
-params.simulation.n           = 100;                     % number of repeated trials
+params.simulation.nn          = 100;                     % number of neurons
+params.simulation.ntrials     = 12;                      % number of repeated trials
 params.simulation.seed        = 1;                       % use same number to compare simulations for same random generator of samples; leave empty to use new generator every time
 
 % Set parameters for leaky integration
@@ -24,11 +25,11 @@ params.simulation.alpha       = 0.1;                     % time constant for den
 params.simulation.tau         = 0.0023;                  % time constant for post-synaptic current
 
 % Set parameters for noise
-params.simulation.amplnoise   = 0.01;                    % amplifier noise: scale factor of signal variance (if 0, no noise is added)
+params.simulation.addnoise   = 0;%0.01;                   % additive noise (if 0, no noise is added)
 
 % ANALYSIS parameters
 
-params.analysis.averagebandshow  = 'mean';             % geomean/mean
+params.analysis.averagebandshow  = 'geomean';             % geomean/mean
 params.analysis.averagebandswhen = 'after hilbert';    % 'before hilbert'/'after hilbert'
 params.analysis.whitenbands      = 'no';               % yes/no
 params.analysis.measure          = 'power';        % amplitude/power/logpower/
@@ -45,7 +46,8 @@ params.plot.lnwdth = 3;                                  % line width
 
 params.simulation.resp        = 'sine';               
 tempFrequencies               = [2:4:30];
-windowSizes                   = {1, 5, 10, 25, 50};
+%windowSizes                   = {1, 5, 10, 25, 50};
+windowSizes = {1, 5, 10, 20, 40, 160};
 
 bb = [];
 stats = [];
@@ -55,7 +57,7 @@ for ii = 1:length(tempFrequencies)
     [spikeArrivals, params] = generateNoisySampledTimeCourses(spikeRate, params);
     [simulatedSignal] = generateIntegratedTimeSeries(spikeArrivals, params);    
     for jj = 1:length(windowSizes)
-        params.analysis.bands  = {[50 200], windowSizes{jj}};     % {[lower bound,  upper bound], window sz}   
+        params.analysis.bands  = {[40 200], windowSizes{jj}};     % {[lower bound,  upper bound], window sz}   
         [bb{ii,jj}.out, bb{ii,jj}.params] = extractBroadband(simulatedSignal, params);
         [stats{ii,jj}, bb{ii,jj}.params] = evaluateBroadband(spikeRate, bb{ii,jj}.out, bb{ii,jj}.params);
     end
@@ -121,14 +123,14 @@ AmpToPlot = AmpToPlot/(length(f)/2); % scale to amplitude in signal
 fH = figure;  set(fH, 'Color', 'w'); hold on;
 p = plot(tempFrequencies, ones(length(tempFrequencies),1),'k--', 'LineWidth', 2);
 for jj = 1:length(windowSizes)
-    plot(tempFrequencies, AmpToPlot(:,jj), 'Color', colors(jj,:), 'Marker', 'o', 'LineWidth', params.plot.lnwdth);
+    plot(tempFrequencies, AmpToPlot(:,jj), 'Color', colors(jj,:), 'Marker', '.', 'MarkerSize', 50, 'LineWidth', params.plot.lnwdth);
 end
 set(gca, 'FontSize', params.plot.fontsz)
 
 xlabel('Input frequency (Hz)')
 ylabel('Amplitude')
 legend(['spikeRate amplitude' labels], 'Location', 'NorthEast');
-title(['amplitude of broadband' bb{1,1}.params.analysis.measure ' with varying bandwidths']);
+%title(['amplitude of broadband' bb{1,1}.params.analysis.measure ' with varying bandwidths']);
   
 
 % % amplitude

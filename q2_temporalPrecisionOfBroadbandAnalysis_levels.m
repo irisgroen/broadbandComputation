@@ -29,14 +29,13 @@ params.simulation.alpha       = 0.1;                     % time constant for den
 params.simulation.tau         = 0.0023;                  % time constant for post-synaptic current
 
 % Set parameters for noise
-params.simulation.addnoise    = 0;%0.01;                   % additive noise (if 0, no noise is added)
+params.simulation.addnoise   = 0;%0.01;                   % additive noise (if 0, no noise is added)
 
 % ANALYSIS parameters
-
-params.analysis.bands            = {[40 200], 20};     % {[lower bound,  upper bound], window sz}
+params.analysis.averagebandshow  = 'geomean';          % geomean/mean
 params.analysis.averagebandswhen = 'after hilbert';    % 'before hilbert'/'after hilbert'
 params.analysis.whitenbands      = 'no';               % yes/no
-
+params.analysis.measure          = 'power';
 % PLOTTING parameters
 
 params.plot.on = 'no';                                  % suppress plotting of simulations and each individual analysis
@@ -51,12 +50,14 @@ inputLevels = ((1:20)/20).^4; % range between 0 and 1
 %inputLevels = ((1:20)/16).^4; % range between 0 and 2.44
 %inputLevels = log((1:20/20)+2); 
 
-powerMeasures = {'amplitude', 'power', 'logpower'};
+% DEFINE bandwidths to be tested
+windowSizes = {1, 5, 10, 20, 40, 160};
+
 t = params.simulation.t/params.simulation.srate;
 
 activityLevels   = nan(length(t), params.simulation.ntrials, length(inputLevels));
-responseLevels   = nan(length(inputLevels), length(powerMeasures));
-responseLevelsSD = nan(length(inputLevels), length(powerMeasures));
+responseLevels   = nan(length(inputLevels), length(windowSizes));
+responseLevelsSD = nan(length(inputLevels), length(windowSizes));
 
 % SIMULATE
 for ii = 1:length(inputLevels)
@@ -82,23 +83,16 @@ xlabel('Time (s)');
 ylabel('Integrated time series');
 title('Simulated signal levels');
 
-% ANALYZE
+%% ANALYZE
 
 % Clip time series to avoid edge artifacts
 tidx = t > 0 & t < 1;
-
-for jj = 1:length(powerMeasures)
+labels = [];
+for jj = 1:length(windowSizes)
     
-    params.analysis.measure = powerMeasures{jj};
-    switch powerMeasures{jj}
-        case {'amplitude', 'power'}
-            params.analysis.averagebandshow  = 'geomean';  
-        case 'logpower'
-            params.analysis.averagebandshow  = 'mean';  
-    end
-    % Get 'calibrated' responses for this powerMeasure
-	[params] = calibrateResponseLevel(params);
-  
+    params.analysis.bands  = {[40 200], windowSizes{jj}};  
+    [params] = calibrateResponseLevel(params);
+
     for ii = 1:length(inputLevels)
     
         simulatedSignal = activityLevels(:,:,ii);
@@ -116,29 +110,46 @@ for jj = 1:length(powerMeasures)
         responseLevelsSD(ii,jj) = std(meanBroadbandCalibrated(tidx,ii),0,1);
 
     end   
-    
+	labels{jj} = ['bandwidth = ' num2str(windowSizes{jj})];
     figure;plot(t,squeeze(meanBroadbandCalibrated), 'LineWidth', 2);
     set(gca, 'FontSize', params.plot.fontsz)
     xlabel('Time (s)');
     ylabel('Broadband time course (calibrated)');
-    title(powerMeasures{jj});
+    title(labels{jj});
 end
 
 %% PLOT
 
 fH = figure;  set(fH, 'Color', 'w'); hold on;
-colors = copper(length(powerMeasures));
-colors(1,:) = [1 0 0];
+colors = jet(length(windowSizes));
 
-for jj = 1:length(powerMeasures)
+for jj = 1:length(windowSizes)
     plot(inputLevels,responseLevels(:,jj), ...
         'LineWidth', 2, 'Marker', '.', 'MarkerSize', 25, 'Color', colors(jj,:))
     e = errorbar(inputLevels,responseLevels(:,jj), responseLevelsSD(:,jj), ... 
         'LineWidth', 2,'LineStyle', 'none', 'Color', colors(jj,:));
     e.Annotation.LegendInformation.IconDisplayStyle = 'off';
 end
-l = legend(powerMeasures, 'Location', 'NorthWest');
+legend(labels);
 set(gca, 'XLim', [-0.1 max(inputLevels)+0.1*max(inputLevels)], 'FontSize', params.plot.fontsz)
 xlabel('Input level (spike rate)');
 ylabel('Broadband response level');
-title('comparison of broadband measures');
+title('comparison of bandwidths');
+
+fH = figure;  set(fH, 'Color', 'w'); hold on;
+colors = jet(length(windowSizes));
+level_inx = length(inputLevels);
+
+for jj = 1:length(windowSizes)
+    plot(jj, responseLevels(level_inx,jj),'LineStyle', 'none', 'Marker', '.', 'MarkerSize', 50, 'Color', colors(jj,:));
+    e = errorbar(jj,responseLevels(level_inx,jj), responseLevelsSD(level_inx,jj), ... 
+        'LineWidth', 2,'LineStyle', 'none', 'Color', colors(jj,:));
+    e.Annotation.LegendInformation.IconDisplayStyle = 'off';
+end
+set(gca, 'XTick', 1:length(windowSizes),'XTicklabel', windowSizes);
+set(gca, 'XLim', [0 length(windowSizes)+1], 'FontSize', params.plot.fontsz);
+%set(gca, 'YLim', [inputLevels(level_inx)-(0.5*inputLevels(level_inx)) inputLevels(level_inx)+(0.5*inputLevels(level_inx))]);
+%legend(labels);
+xlabel('BandWidths')
+ylabel(['Estimated broadband for spike rate of ' num2str(inputLevels(level_inx))])
+ylim([0.5 1.5])
