@@ -36,7 +36,7 @@ collapseTrialTypes = 'no';
 smoothingLevelInMs = []; 
 
 % 'out' contains the plotted time courses and SEs
-bw_inx = 2; %10hz bands
+bw_inx = 2; %20hz bands
 
 for ii = 1:length(bbmethods)
     [out(ii)] = ecog_plotTrials(data(ii,bw_inx).trials, whichElectrodes, whichTrials, collapseTrialTypes, smoothingLevelInMs);
@@ -55,7 +55,7 @@ collapseTrialTypes = 'no';
 smoothingLevelInMs = []; 
 
 % 'out' contains the plotted time courses and SEs
-bb_inx = 1; %power
+bb_inx = 2; %power
 for jj = 1:length(bandwidths)
     [out(jj)] = ecog_plotTrials(data(bb_inx,jj).trials, whichElectrodes, whichTrials, collapseTrialTypes, smoothingLevelInMs);
     %set(gcf,'Name', [num2str(trials.bb_bands(1,2)-trials.bb_bands(1,1)) ' Hz bands']);
