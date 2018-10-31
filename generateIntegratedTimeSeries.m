@@ -83,10 +83,10 @@ switch params.plot.on
 
             % plot frequency spectra for baseline and for stimulus
             fH = figure;  set(fH, 'Color', 'w');
-            baseline = signalMean(params.plot.baseline_idx);
-            stimulus = signalMean(params.plot.stimulus_idx);
+            baseline = signal(params.plot.baseline_idx,:);
+            stimulus = signal(params.plot.stimulus_idx,:);
             f = 0:length(baseline)-1; 
-            plot(f, abs(fft(baseline)),'k', f, abs(fft(stimulus)), 'r', 'LineWidth', params.plot.lnwdth); 
+            plot(f, mean(abs(fft(baseline)),2),'k', f, mean(abs(fft(stimulus)),2), 'r', 'LineWidth', params.plot.lnwdth); 
             xlim([0 length(baseline)/2]); 
             %set(gca, 'XScale', 'log', 'YScale', 'log')
             set(gca, 'XLim', [0 200], 'YScale', 'log')

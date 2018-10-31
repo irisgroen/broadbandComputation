@@ -11,7 +11,7 @@ calibparams = params;
 % Run a separate simulation on a simple step response profile
 calibparams.simulation.resp        = 'step'; % has 0 for t > 0 & t < 0.5, has 1 for t > 0.5
 calibparams.plot.on                = 'no'; 
-
+calibparams.simulation.ntrials          = 100;                      
 [spikeRate, calibparams] = generateNoiselessTimeCourse(calibparams);
 [spikeArrivals, calibparams] = generateNoisySampledTimeCourses(spikeRate, calibparams);
 [simulatedSignal] = generateIntegratedTimeSeries(spikeArrivals, calibparams);

@@ -5,7 +5,7 @@
 % How is temporal precision of broadband estimate affected by analysis parameters? 
 % Prediction: Time series containing sharp transients need wide bands (more time precision)
 % Approach: vary params.resp and params.bands, where is the optimum?
-
+clear all;
 params = [];
 
 % SIMULATION parameters
@@ -45,9 +45,8 @@ params.plot.lnwdth = 3;                                  % line width
 % COMPARE multiple temporal frequencies
 
 params.simulation.resp        = 'sine';               
-tempFrequencies               = [2:4:30];
-%windowSizes                   = {1, 5, 10, 25, 50};
-windowSizes = {1, 5, 10, 20, 40, 160};
+tempFrequencies               = 0:2:30;%[2:4:30];
+windowSizes = {20,40};%{1, 5, 10, 20, 40, 160};
 
 bb = [];
 stats = [];
@@ -130,7 +129,7 @@ set(gca, 'FontSize', params.plot.fontsz)
 xlabel('Input frequency (Hz)')
 ylabel('Amplitude')
 legend(['spikeRate amplitude' labels], 'Location', 'NorthEast');
-%title(['amplitude of broadband' bb{1,1}.params.analysis.measure ' with varying bandwidths']);
+title(['amplitude of broadband timeseries with varying bandwidths']);
   
 
 % % amplitude
@@ -138,30 +137,30 @@ legend(['spikeRate amplitude' labels], 'Location', 'NorthEast');
 % figure, plot(f, abs(fft(spikeRate(idx))), 'LineWidth', params.plot.lnwdth); 
 % figure, plot(f, abs(fft(meanBroadbandCalibrated)), 'LineWidth', params.plot.lnwdth); 
 
-% average 
-fH = figure;  set(fH, 'Color', 'w'); hold on;
-p = plot(tempFrequencies, ones(length(tempFrequencies),1)*mean(spikeRate(idx)),'k--', 'LineWidth', 2);
-for jj = 1:length(windowSizes)
-    plot(tempFrequencies, MnToPlot(:,jj), 'Color', colors(jj,:), 'Marker', 'o', 'LineWidth', params.plot.lnwdth);
-end
-set(gca, 'FontSize', params.plot.fontsz)
-
-xlabel('Input frequency (Hz)')
-ylabel('Mean broadband power')
-legend(['mean of spikeRate' labels], 'Location', 'NorthEast');
-title(['mean broadband ' bb{1,1}.params.analysis.measure ' with varying bandwidths']);
-    
-% variance
-fH = figure;  set(fH, 'Color', 'w'); hold on;
-p = plot(tempFrequencies, ones(length(tempFrequencies),1)*var(spikeRate(idx)),'k--', 'LineWidth', 2);
-for jj = 1:length(windowSizes)
-    plot(tempFrequencies, VarToPlot(:,jj), 'Color', colors(jj,:), 'Marker', 'o', 'LineWidth', params.plot.lnwdth);
-end
-set(gca, 'FontSize', params.plot.fontsz)
-
-xlabel('Input frequency (Hz)')
-ylabel('Variance in broadband power')
-legend(['variance of spikeRate' labels], 'Location', 'NorthEast');
-title(['variance in broadband ' bb{1,1}.params.analysis.measure ' with varying bandwidths']);
-   
+% %% average 
+% fH = figure;  set(fH, 'Color', 'w'); hold on;
+% p = plot(tempFrequencies, ones(length(tempFrequencies),1)*mean(spikeRate(idx)),'k--', 'LineWidth', 2);
+% for jj = 1:length(windowSizes)
+%     plot(tempFrequencies, MnToPlot(:,jj), 'Color', colors(jj,:), 'Marker', 'o', 'LineWidth', params.plot.lnwdth);
+% end
+% set(gca, 'FontSize', params.plot.fontsz)
+% 
+% xlabel('Input frequency (Hz)')
+% ylabel('Mean broadband power')
+% legend(['mean of spikeRate' labels], 'Location', 'NorthEast');
+% title(['mean broadband ' bb{1,1}.params.analysis.measure ' with varying bandwidths']);
+%     
+% % variance
+% fH = figure;  set(fH, 'Color', 'w'); hold on;
+% p = plot(tempFrequencies, ones(length(tempFrequencies),1)*var(spikeRate(idx)),'k--', 'LineWidth', 2);
+% for jj = 1:length(windowSizes)
+%     plot(tempFrequencies, VarToPlot(:,jj), 'Color', colors(jj,:), 'Marker', 'o', 'LineWidth', params.plot.lnwdth);
+% end
+% set(gca, 'FontSize', params.plot.fontsz)
+% 
+% xlabel('Input frequency (Hz)')
+% ylabel('Variance in broadband power')
+% legend(['variance of spikeRate' labels], 'Location', 'NorthEast');
+% title(['variance in broadband ' bb{1,1}.params.analysis.measure ' with varying bandwidths']);
+%    
 
