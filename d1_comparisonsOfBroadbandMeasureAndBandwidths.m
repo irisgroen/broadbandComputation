@@ -11,14 +11,16 @@ dataDir = fullfile(dataPth, projectName, 'derivatives', 'preprocessed', sprintf(
 
 %% Load preprocessed data
 
-bbmethods = [7 8 9];
+bbmethods = [8 7 9];
 bandwidths = [10 20 40];
 
 for ii = 1:length(bbmethods)
     for jj = 1:length(bandwidths)
+        fprintf('.');
         dataName = fullfile(dataDir, sprintf('sub-%s_ses-%s_epoched_bbmethod%d_bandwidth%d', sub_label, ses_label, bbmethods(ii), bandwidths(jj)));
         data(ii,jj) = load(dataName);
     end
+    fprintf('\n');
 end
 
 %% method comparison
@@ -28,7 +30,7 @@ end
 
 % Which stimulus conditions to plot? 
 whichElectrodes = {'IO01'};%, 'IO02','IO03','IO04'};
-whichTrials = {'HRFPATTERN', 'SCENES','FACES', 'LETTERS'};
+whichTrials = {'SCENES','FACES', 'LETTERS'};%{'HRFPATTERN', 'SCENES','FACES', 'LETTERS'};
 
 collapseTrialTypes = 'no'; 
 smoothingLevelInMs = []; 
@@ -41,6 +43,7 @@ for ii = 1:length(bbmethods)
     %set(gcf,'Name', data(ii,bw_inx).trials.bb_method);
     a = get(gca);
     a.Title.String = [a.Title.String '  :  ' data(ii,bw_inx).trials.bb_method '  :  ' num2str(data(ii,bw_inx).trials.bb_bands(1,2)-data(ii,bw_inx).trials.bb_bands(1,1)) ' Hz bands'];
+    set(gca, 'YLim', [-1 4]);
 end
 
 %% bandwidth comparison 
