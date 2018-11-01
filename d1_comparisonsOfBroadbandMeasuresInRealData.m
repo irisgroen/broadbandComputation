@@ -11,7 +11,7 @@ dataDir = fullfile(dataPth, projectName, 'derivatives', 'preprocessed', sprintf(
 
 %% Load preprocessed data
 
-bbmethods = [8 7 9];
+bbmethods = [8 7 9]; % 8 = amplitude, 7 = power, 9 = logpower, see trial.bbmethod
 bandwidths = [10 20 40];
 
 for ii = 1:length(bbmethods)
@@ -123,7 +123,7 @@ for ii = 1:length(CRFstimuli)
     CRFp2p(ii) = peak2peak(double(CRFstimuli{ii}(:))/255-0.5);
 end
 
-%% PLOT contrast response functions
+% PLOT contrast response functions
 figure;hold on
 colors = copper(length(bbmethods));
 colors(1,:) = [1 0 0];
