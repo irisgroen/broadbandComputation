@@ -1,3 +1,5 @@
+%% NOT WORKING YET %%
+
 %% bandwidth comparison 
 
 whichElectrodes = {'MO01'};%%, 'MO02'};%,'MO03','MO04'};
