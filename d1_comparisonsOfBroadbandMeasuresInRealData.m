@@ -12,7 +12,7 @@ dataDir = fullfile(dataPth, projectName, 'derivatives', 'preprocessed', sprintf(
 %% Load preprocessed data
 
 bbmethods = [8 7 9]; % 8 = amplitude, 7 = power, 9 = logpower, see trial.bbmethod
-bandwidths = [10 20 40];
+bandwidths = [10];% 20 40];
 
 for ii = 1:length(bbmethods)
     for jj = 1:length(bandwidths)
@@ -32,7 +32,7 @@ end
 whichElectrodes = {'MO01'};%%, 'MO02'};%,'MO03','MO04'};
 whichTrials = {'CRF-1','CRF-2', 'CRF-3','CRF-4', 'CRF-5'};
 
-smoothingLevelInMs = [20]; 
+smoothingLevelInMs = []; 
 
 % 'out' contains the plotted time courses and SEs across trials
 
@@ -40,7 +40,7 @@ smoothingLevelInMs = [20];
 bw_inx = 1; %20hz bands
 clear out;
 for ii = 1:length(bbmethods)
-    [out(ii)] = ecog_plotTrials(data(ii,bw_inx).trials, whichElectrodes, whichTrials, collapseTrialTypes, smoothingLevelInMs);
+    [out(ii)] = ecog_plotTrials(data(ii,bw_inx).trials, whichElectrodes, whichTrials);
     %set(gcf,'Name', data(ii,bw_inx).trials.bb_method);
     a = get(gca);
     a.Title.String = [a.Title.String '  :  ' data(ii,bw_inx).trials.bb_method '  :  ' num2str(data(ii,bw_inx).trials.bb_bands(1,2)-data(ii,bw_inx).trials.bb_bands(1,1)) ' Hz bands'];
@@ -66,25 +66,42 @@ xlabel('Time(s)')
 ylabel(a.YLabel.String);
 title('lowest and highest contrast for amplitude, power, logpower');
 
-% PLOT lowest and highest condition for all bb methods in one plot
-figure; hold on
-colors = copper(length(bbmethods));
-colors(1,:) = [1 0 0];
+%% PLOT lowest and highest condition for all bb methods in separate plots
+%figure; hold on
+listoftitles = {'amplitude', 'power', 'logpower'};
 for ii = 1:length(bbmethods)
-    plot(out(ii).time,out(ii).broadband.(whichElectrodes{:}).mn(1,:)/max(out(ii).broadband.(whichElectrodes{:}).mn(:)),':','Color', colors(ii,:),'LineWidth',2);
-    plot(out(ii).time,out(ii).broadband.(whichElectrodes{:}).mn(5,:)/max(out(ii).broadband.(whichElectrodes{:}).mn(:)),'-','Color', colors(ii,:),'LineWidth',2); 
+    figure; hold on
+    %plot(out(ii).time,out(ii).broadband.(whichElectrodes{:}).mn(1,:)/max(out(ii).broadband.(whichElectrodes{:}).mn(:)),':','Color', colors(ii,:),'LineWidth',2);
+    %plot(out(ii).time,out(ii).broadband.(whichElectrodes{:}).mn(5,:)/max(out(ii).broadband.(whichElectrodes{:}).mn(:)),'-','Color', colors(ii,:),'LineWidth',2); 
+    plot(out(ii).time,out(ii).broadband.(whichElectrodes{:}).mn(1,:),'Color', [0 0 0],'LineWidth',2);
+    llim = out(ii).broadband.(whichElectrodes{:}).mn(1,:) - out(ii).broadband.(whichElectrodes{:}).se(1,:);
+    ulim = out(ii).broadband.(whichElectrodes{:}).mn(1,:) + out(ii).broadband.(whichElectrodes{:}).se(1,:);
+    h = ciplot(llim,ulim,out(ii).time,'k',0);
+	h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+	plot(out(ii).time,out(ii).broadband.(whichElectrodes{:}).mn(5,:),'Color',[0 0 0],'LineWidth',2);
+    llim = out(ii).broadband.(whichElectrodes{:}).mn(5,:) - out(ii).broadband.(whichElectrodes{:}).se(5,:);
+    ulim = out(ii).broadband.(whichElectrodes{:}).mn(5,:) + out(ii).broadband.(whichElectrodes{:}).se(5,:);
+    h = ciplot(llim,ulim,out(ii).time,'k',0);
+	h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+    line([0 0], get(gca, 'YLim'), 'LineStyle', ':', 'Color', 'k');
+    line([out(ii).time(1) out(ii).time(end)], [0 0],'LineStyle', ':', 'Color', 'k');
+    %legend({'amplitude CRF-5', 'amplitude CRF-1', 'power CRF-5', 'power CRF-1', 'logpower CRF-5', 'logpower CRF-1'});
+    xlabel('Time(s)')
+    %ylabel(a.YLabel.String);
+    title(listoftitles{ii});
+    if ii == 1
+        set(gca, 'YLim', [-1 5], 'XLim', [-0.25 0.75], 'FontSize', 18);
+    elseif ii == 2
+        set(gca, 'YLim', [-5 30], 'XLim', [-0.25 0.75], 'FontSize', 18);
+    elseif ii == 3
+        set(gca, 'YLim', [-1.5 8], 'XLim', [-0.25 0.75], 'FontSize', 18);
+    end
 end
-ylim = get(gca,'YLim'); %ylim = [-1 30];
-set(gca, 'YLim', ylim, 'XLim', [0 0.75], 'FontSize', 18);
+%ylim = get(gca,'YLim'); %ylim = [-1 30];
+%set(gca, 'YLim', ylim, 'XLim', [0 0.75], 'FontSize', 18);
 % Add stim onset and zero lines
-line([0 0], ylim,'LineStyle', ':', 'Color', 'k');
-line([out(ii).time(1) out(ii).time(end)], [0 0],'LineStyle', ':', 'Color', 'k');
-legend({'amplitude CRF-5', 'amplitude CRF-1', 'power CRF-5', 'power CRF-1', 'logpower CRF-5', 'logpower CRF-1'});
-xlabel('Time(s)')
-ylabel(a.YLabel.String);
-title('lowest and highest contrast for amplitude, power, logpower');
 
-% PLOT all conditions for power only with maxima highlighted
+%% PLOT all conditions for power only with maxima highlighted
 figure;hold on
 bb_inx = 2; % power
 colors = copper(length(whichTrials));

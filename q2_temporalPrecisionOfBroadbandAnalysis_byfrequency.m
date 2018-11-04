@@ -45,8 +45,8 @@ params.plot.lnwdth = 3;                                  % line width
 % COMPARE multiple temporal frequencies
 
 params.simulation.resp        = 'sine';               
-tempFrequencies               = 0:2:30;%[2:4:30];
-windowSizes = {20,40};%{1, 5, 10, 20, 40, 160};
+tempFrequencies               = 1:3:30;%[2:4:30];
+windowSizes                   = {160};%{1, 5, 10, 20, 40, 80};
 
 bb = [];
 stats = [];

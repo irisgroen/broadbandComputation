@@ -21,7 +21,7 @@ end
 
 %% bandwidth comparison 
 
-whichElectrodes = {'MO01'};%%, 'MO02'};%,'MO03','MO04'};
+whichElectrodes = {'MO02'};%%, 'MO02'};%,'MO03','MO04'};
 whichTrials = {'TWOPULSE-1'};%,'TWOPULSE-2', 'TWOPULSE-3','TWOPULSE-4', 'TWOPULSE-5'};
 
 smoothingLevelInMs = []; 

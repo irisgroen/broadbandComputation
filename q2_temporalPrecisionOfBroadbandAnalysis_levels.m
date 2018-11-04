@@ -46,12 +46,12 @@ params.plot.lnwdth = 3;                                 % line width
 
 % DEFINE levels to be tested
 
-inputLevels = ((1:20)/20).^4; % range between 0 and 1
+inputLevels = 1;%((1:20)/20).^4; % range between 0 and 1
 %inputLevels = ((1:20)/16).^4; % range between 0 and 2.44
 %inputLevels = log((1:20/20)+2); 
 
 % DEFINE bandwidths to be tested
-windowSizes = {1, 5, 10, 20, 40, 160};
+windowSizes = {1, 5, 10, 20, 40, 80};
 
 t = params.simulation.t/params.simulation.srate;
 
@@ -88,6 +88,7 @@ title('Simulated signal levels');
 % Clip time series to avoid edge artifacts
 tidx = t > 0 & t < 1;
 labels = [];
+ meanBroadbandCalibrated = [];
 for jj = 1:length(windowSizes)
     
     params.analysis.bands  = {[40 200], windowSizes{jj}};  
@@ -99,19 +100,24 @@ for jj = 1:length(windowSizes)
     
         % Compute broadband
         [estimatedBroadband, params] = extractBroadband(simulatedSignal, params);
-   
+        
         % Average extracted broadband across trials
-        meanBroadband = mean(estimatedBroadband,2);
+        %meanBroadband = mean(estimatedBroadband,2);
 
         % Scale broadband to calibrated response using calibrate function
-        meanBroadbandCalibrated(:,ii) = params.analysis.calibrate(meanBroadband);
+        %meanBroadbandCalibrated(:,ii) = params.analysis.calibrate(meanBroadband);
 
-        responseLevels(ii,jj) = mean(meanBroadbandCalibrated(tidx,ii),1);
-        responseLevelsSD(ii,jj) = std(meanBroadbandCalibrated(tidx,ii),0,1);
+        broadbandCalibrated = params.analysis.calibrate(estimatedBroadband);
+        % Average level across time
+        meanBroadbandCalibrated(:,ii) = mean(broadbandCalibrated(tidx,:),1);
+        
+        % Average and SD across trials
+        responseLevels(ii,jj) = mean(meanBroadbandCalibrated(:,ii),1);
+        responseLevelsSD(ii,jj) = std(meanBroadbandCalibrated(:,ii),0,1);
 
     end   
 	labels{jj} = ['bandwidth = ' num2str(windowSizes{jj})];
-    figure;plot(t,squeeze(meanBroadbandCalibrated), 'LineWidth', 2);
+    %figure;plot(t,squeeze(meanBroadbandCalibrated), 'LineWidth', 2);
     set(gca, 'FontSize', params.plot.fontsz)
     xlabel('Time (s)');
     ylabel('Broadband time course (calibrated)');
@@ -140,6 +146,7 @@ fH = figure;  set(fH, 'Color', 'w'); hold on;
 colors = jet(length(windowSizes));
 level_inx = length(inputLevels);
 
+p = plot(1:length(windowSizes), ones(length(windowSizes),1)* mean(spikeRate(tidx,level_inx),1),'k--', 'LineWidth', 2);
 for jj = 1:length(windowSizes)
     plot(jj, responseLevels(level_inx,jj),'LineStyle', 'none', 'Marker', '.', 'MarkerSize', 50, 'Color', colors(jj,:));
     e = errorbar(jj,responseLevels(level_inx,jj), responseLevelsSD(level_inx,jj), ... 

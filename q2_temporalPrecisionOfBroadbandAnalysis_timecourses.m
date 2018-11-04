@@ -11,7 +11,7 @@ params = [];
 % SIMULATION parameters
 
 % Set parameters for the noiseless, time-varying rate 
-params.simulation.resp        = 'sine';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
+params.simulation.resp        = 'smallsteps';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
 params.simulation.t           = (-1999.5:1999.5)';       % trial length: trials are -2 to 2 seconds, and later clipped to [0 1] to avoid edge artifacts
 params.simulation.srate       = 1000;                    % sample rate (Hz) 
 params.simulation.opt.f       = 5;                       % temporal frequency of response profile, applicable to 'sine' or 'square' wave profiles
@@ -49,7 +49,7 @@ params.plot.lnwdth = 3;                                  % line width
 
 %% ANALYZE: bandwidths
 
-windowSizes = {1, 5, 10, 20, 40, 160};
+windowSizes = {1, 5, 10, 20, 40, 80};
 colors = jet(length(windowSizes));
 
 bb = []; stats = [];

@@ -6,7 +6,7 @@ if ~isfield(params.simulation, 'resp') || isempty(params.simulation.resp)
 end
 
 t = params.simulation.t/params.simulation.srate; 
-spontaneousRate = (1/params.simulation.srate)*10;
+spontaneousRate = (1/params.simulation.srate)*100;
 spikeRate = zeros(size(t))+spontaneousRate;
 
 switch params.simulation.resp
@@ -60,7 +60,7 @@ switch params.simulation.resp
             f = params.simulation.opt.f;
         else, f = 3;
         end
-        spikeRate = sin(2*pi*t*f)+1+spontaneousRate;
+        spikeRate = sin(2*pi*t*f)+2+spontaneousRate;
         spikeRate(t<0) = spontaneousRate;
         xl = [.2 0.8];
         

@@ -15,7 +15,7 @@ params = [];
 params.simulation.resp        = 'smallsteps';               % response profile: choose from {'boxcar' 'steps' 'step' 'pulse' 'bump' 'square' 'sine' 'noise' 'pred dn'} ([default = step];
 params.simulation.t           = (-1999.5:1999.5)';       % trial length: trials are -2 to 2 seconds, and later clipped to [0 1] to avoid edge artifacts
 params.simulation.srate       = 1000;                    % sample rate (Hz) 
-params.simulation.opt.f       = 10;                      % temporal frequency of response profile, applicable to sine wave or square wave
+params.simulation.opt.f       = 20;                      % temporal frequency of response profile, applicable to sine wave or square wave
 
 % Set parameters for noisy samples
 params.simulation.nn          = 100;                     % number of neurons
@@ -50,6 +50,7 @@ params.plot.lnwdth = 3;                                 % line width
 %% ANALYZE
 
 powerMeasures = {'amplitude', 'power', 'logpower'};
+%powerMeasures = {'power'};
 colors = copper(length(powerMeasures));
 colors(1,:) = [1 0 0];
 
@@ -102,6 +103,4 @@ xlabel('Time (s)')
 ylabel('Response')
 legend(labels, 'Location', 'NorthWest');
 title('comparison of broadband measures');
-
-%% to add: scatter plot of response levels vs. broadband level
 

@@ -113,8 +113,10 @@ switch params.plot.on
         plotNames = {'Lowest band', 'Second band', 'Middle band', 'Highest band'};
         for ii = 1:length(bandNumbers)
             fH = figure; set(fH, 'Color', 'w'); hold on
+            %bpToPlot = singletrial_bp(:,bandNumbers(ii));
             bpToPlot = singletrial_bp(:,bandNumbers(ii))/max(abs(singletrial_bp(:,bandNumbers(ii))));
             plot(t,bpToPlot, 'b');
+            %envToPlot = singletrial_envelope(:,bandNumbers(ii));
             envToPlot = singletrial_envelope(:,bandNumbers(ii))/max(abs(singletrial_envelope(:,bandNumbers(ii))));
             plot(t,envToPlot, 'k','LineWidth', params.plot.lnwdth)
             set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl);
