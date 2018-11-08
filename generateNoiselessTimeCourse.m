@@ -88,7 +88,7 @@ switch params.plot.on
         % Plot the noiseless time series
         figure();
         plot(t, spikeRate, 'b', 'LineWidth', params.plot.lnwdth);
-        title('Noiseless time series')
+        title('Noiseless time series (input)')
         set(gca, 'XLim', xl, 'FontSize', params.plot.fontsz)
         xlabel('Time (s)')
         ylabel('Spike Rate')

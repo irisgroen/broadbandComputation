@@ -31,11 +31,7 @@ for ii = 1:size(bands,1)
     bp(:,:, ii) = butterpass_eeglabdata(signal,bands(ii,:),srate);
 end
 
-% if only one time series, then eliminate singleton dimension
-%if size(bp, 2) == 1, bp = squeeze(bp); end
-
 % which dimension represents the multiple bands?
-%banddim = length(size(bp));
 banddim = 3;
 
 %%%% FUNCTIONS %%%%
@@ -64,9 +60,6 @@ switch params.analysis.measure
     case 'logpower'
         bb = @(x) log10(abs(hilbert(x)).^2);
         bbstr = 'logpower';
-%     case 'logpower normalized' % dora method
-%         bb = @(x) log10(abs(hilbert(x)).^2) - mean(log10(abs(hilbert(x)).^2));
-%         bbstr = 'logpower norm';
     otherwise
         error('Unrecognized measure %s', params.analysis.measure)
 end
@@ -82,6 +75,8 @@ switch params.analysis.whitenbands
         whitenstr = [];
 end
 
+% averaging across bands: take the average of the hilbert envelope of each
+% bands, or average signals first and then compute the hilbert envelope?
 switch params.analysis.averagebandswhen
     case 'before hilbert'
         broadband = bb(mn(bp,banddim));
@@ -91,18 +86,13 @@ switch params.analysis.averagebandswhen
         methodstr = [mnstr ' ' bbstr ' ' whitenstr ' '];
 end
 
-% epoch the broadband time series
-% nt = length(params.simulation.t);
-% n  = params.simulation.n;
-% broadband = reshape(broadband, nt, n);
-
 params.analysis.methodstr = methodstr;
 
 switch params.plot.on
     case 'yes'
         t = params.simulation.t/params.simulation.srate; 
         
-        % plot individual band-pass filtered time series + envelopes
+        % Plot a number of band-pass filtered time series + envelopes
         singletrial_bp = squeeze(bp(:,1,:));
         singletrial_envelope = bb(singletrial_bp);
         if size(bp,3) > 1
@@ -113,25 +103,23 @@ switch params.plot.on
         plotNames = {'Lowest band', 'Second band', 'Middle band', 'Highest band'};
         for ii = 1:length(bandNumbers)
             fH = figure; set(fH, 'Color', 'w'); hold on
-            %bpToPlot = singletrial_bp(:,bandNumbers(ii));
-            bpToPlot = singletrial_bp(:,bandNumbers(ii))/max(abs(singletrial_bp(:,bandNumbers(ii))));
+            bpToPlot = singletrial_bp(:,bandNumbers(ii));
             plot(t,bpToPlot, 'b');
-            %envToPlot = singletrial_envelope(:,bandNumbers(ii));
-            envToPlot = singletrial_envelope(:,bandNumbers(ii))/max(abs(singletrial_envelope(:,bandNumbers(ii))));
+            envToPlot = singletrial_envelope(:,bandNumbers(ii));
             plot(t,envToPlot, 'k','LineWidth', params.plot.lnwdth)
             set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl);
             title('Lowest band');
             legend({'Band-pass filtered time series', 'Hilbert envelope'},'Location', 'NorthWest')
             xlabel('Time (s)')
             ylabel('Amplitude')
-            %set(gca, 'YLim', [-max(abs(singletrial_bp(:))) max(abs(singletrial_bp(:)))]);
-            set(gca, 'YLim', [-1 1]);
+            set(gca, 'YLim', [-max(abs(singletrial_bp(:))) max(abs(singletrial_bp(:)))]);
             title([plotNames{ii} ' (' num2str(bands(bandNumbers(ii),1)) '-' num2str(bands(bandNumbers(ii),2)) 'Hz)']);
         end
         
         % plot the mean envelope across bands: single-trial 
         fH = figure; set(fH, 'Color', 'w'); hold on
         plot(t,mn(singletrial_envelope,2), 'LineWidth', params.plot.lnwdth);
+        
         % compare with mean across trials
         test = bb(bp);
         testmn = mn(test,3);
@@ -144,34 +132,3 @@ switch params.plot.on
         ylabel('Amplitude')
 end
 return
-
-% switch method
-%     case {1}
-%         % -- Method 1: 'abs(hilbert(mean(whiten(bp(x)))))';
-%         broadband = abs(hilbert(mean(whiten(bp),banddim)));
-%         calc = 'abs(hilbert(mean(whiten(bp))))';
-%     case {2}
-%         % -- Method 2: 'abs(hilbert(mean(whiten(bp(x))))).^2';
-%         broadband = abs(hilbert(mean(whiten(bp), banddim))).^2;
-%         calc = 'abs(hilbert(mean(whiten(bp)))).^2';
-%         
-%     case {3}
-%         % -- Method 3: geomean(abs(hilbert(whiten(bp(x))))
-%         broadband = geomean(abs(hilbert(whiten(bp))),  banddim);
-%         calc = 'geomean(abs(hilbert(whiten(bp)))';
-%         
-%     case {4}
-%         % -- Method 4: geomean(abs(hilbert(whiten(bp(x)))).^2)
-%         broadband = geomean(abs(hilbert(whiten(bp))).^2, banddim);
-%         calc = 'geomean(abs(hilbert(whiten(bp))).^2)';
-%         
-%     case {5}
-%         % -- Method 5: geomean(abs(hilbert(bp(x))).^2)
-%         broadband = geomean(abs(hilbert(bp)).^2, banddim);
-%         calc = 'geomean(abs(hilbert(bp)).^2)';
-%         
-%     case {6}
-%         % -- Method 6: mean(abs(hilbert(whiten(bp(x)))).^2)
-%         broadband = mean(abs(hilbert(whiten(bp))).^2, banddim);
-%         calc = 'mean(abs(hilbert(whiten(bp))).^2)';
-% end

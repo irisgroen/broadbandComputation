@@ -6,7 +6,7 @@ function [results, params] = evaluateBroadband(spikeRate, estimatedBroadband, pa
 t = params.simulation.t/params.simulation.srate;
 
 % Average extracted broadband across trials
-%meanBroadband = geomean(broadband,2);
+%meanBroadband = geomean(estimatedBroadband,2);
 meanBroadband = mean(estimatedBroadband,2);
 
 % Get 'calibrated' responses to scale estimatedBroadband with

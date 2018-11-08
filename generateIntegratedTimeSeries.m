@@ -45,7 +45,7 @@ end
 
 I = I / alpha;
 
-% Add amplifier output noise?
+% Add noise?
 if params.simulation.addnoise > 0
     noise = randn(size(I))*params.simulation.addnoise;
     I = I + noise;
@@ -68,18 +68,18 @@ switch params.plot.on
         legend('Single trial', 'Mean across trials', 'Location', 'NorthWest')
         xlabel('Time (s)')
         ylabel('Simulated Signal')
-        
+        title('LFP time series')
+
         if isfield(params.plot, 'stimulus_idx')
             % plot mean w different colors for baseline and stimulus
             fH = figure;  set(fH, 'Color', 'w'); hold on
-            %stimulusToPlot = nan(size(Im));
-            %stimulusToPlot(params.plot.stimulus_idx) = Im(params.plot.stimulus_idx);
             plot(t,signalMean, 'k', 'LineWidth', params.plot.lnwdth);
             plot(t(params.plot.stimulus_idx), signalMean(params.plot.stimulus_idx), 'r','LineWidth', params.plot.lnwdth); 
             set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl)
             legend('Baseline', 'Stimulus', 'Location', 'NorthWest')
             xlabel('Time (s)')
             ylabel('Simulated Signal')
+            title('LFP time series')
 
             % plot frequency spectra for baseline and for stimulus
             fH = figure;  set(fH, 'Color', 'w');
@@ -94,6 +94,9 @@ switch params.plot.on
             legend('Baseline', 'Stimulus', 'Location', 'NorthWest')
             xlabel('Frequency(Hz)')
             ylabel('Power')
+            title('Noiseless time series (input)')
+            title('LFP spectra')
+
         end
 end
 

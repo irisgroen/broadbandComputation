@@ -21,7 +21,7 @@ switch params.plot.on
         plot(t, mean(mean(spikeArrivals,2),3), 'r', 'LineWidth', params.plot.lnwdth);
         set(gca, 'FontSize', params.plot.fontsz, 'XLim', params.plot.xl)
 
-        legend('Single neuron, single trial', 'Single trial', 'Mean across trials')
+        legend('Single neuron, single trial', 'Single trial', 'Mean across trials', 'Location', 'NorthWest')
         xlabel('Time (s)')
         ylabel('Spike Arrivals')
         title('Spiking time series');

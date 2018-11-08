@@ -11,7 +11,7 @@ calibparams = params;
 % Run a separate simulation on a simple step response profile
 calibparams.simulation.resp        = 'step'; % has 0 for t > 0 & t < 0.5, has 1 for t > 0.5
 calibparams.plot.on                = 'no'; 
-calibparams.simulation.ntrials          = 100;                      
+calibparams.simulation.ntrials     = 100;                      
 [spikeRate, calibparams] = generateNoiselessTimeCourse(calibparams);
 [spikeArrivals, calibparams] = generateNoisySampledTimeCourses(spikeRate, calibparams);
 [simulatedSignal] = generateIntegratedTimeSeries(spikeArrivals, calibparams);
@@ -52,7 +52,8 @@ switch params.plot.on
         yl = get(gca, 'YLim');
         zerolines = plot(xl, [0 0], 'k--', [0 0], yl, 'k--');
         zerolines(1).Annotation.LegendInformation.IconDisplayStyle = 'off';     
-        zerolines(2).Annotation.LegendInformation.IconDisplayStyle = 'off';     
+        zerolines(2).Annotation.LegendInformation.IconDisplayStyle = 'off';    
+        title('Calibration')
 end
 
 % Add calibration function handle to params
